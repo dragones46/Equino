@@ -1,0 +1,144 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equino - {% block titulo %}...{% endblock %}</title>
+    {% block estilos %}{% endblock %}
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'Equino/img/favicon-32x32.png' %}">
+
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="{% static 'Equino/js/libreria.js' %}"></script>
+    <script src="{% static 'Equino/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'Equino/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content {
+            flex: 1;
+            padding-bottom: 50px; /* Ajusta la separación entre el contenido y el footer */
+        }
+
+        .navbar a {
+            color: white !important; /* Texto blanco para mejor contraste */
+        }
+
+        .navbar a:hover {
+            color: #ffcc00 !important; /* Color dorado al pasar el mouse */
+        }
+
+        /* Fondo azul en el navbar */
+        .navbar {
+            background-color: #01019f; /* Azul Bootstrap */
+        }
+
+        /* Estilo para los botones del navbar */
+        .navbar-nav .nav-item {
+            margin-right: 10px; /* Añadir un margen entre los botones */
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            margin-top: auto; /* Asegura que el footer se quede abajo */
+            background-color: rgb(0, 0, 151); /* Fondo del footer */
+        }
+
+        .footer-info {
+            text-align: right;
+        }
+
+        .footer-info p {
+            margin: 0;
+            padding-left: 100px;
+            position: relative;
+            list-style-type: none;
+        }
+
+        /* Ajustes para la tarjeta de registro */
+        .card {
+            margin-top: 50px; /* Ajusta este valor para alejar la tarjeta del borde superior */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Menú de Navegación -->
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand" href="/">TECHNOLOGIC NEGORGE</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span> <!-- Icono de la hamburguesa -->
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{% url 'quienes_somos' %}">Quienes somos?</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'productos' %}">Productos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'contactenos' %}">Contactenos</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <!-- Botón de Iniciar sesión -->
+                        <a class="btn btn-outline-success" href="{% url 'iniciar_sesion' %}">Iniciar sesión</a>
+                    </li>
+                    <li class="nav-item">
+                        <!-- Botón de Registrarse -->
+                        <a class="btn btn-outline-secondary" href="{% url 'registrarse' %}">Registrarse</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="content container mt-5">
+            {% block contenedor %}
+            {% endblock %}
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-dark text-white footer">
+            <div class="container">
+                <div class="row w-100">
+                    <div class="col-md-6" style="margin-top: 10px;">
+                        <p>© 2024 Powered</p>
+                    </div>
+                    <div class="col-md-6 footer-info">
+                        <p> - Atención al cliente</p>
+                        <p> - Llamadas y WhatsApp: 32594565442</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
