@@ -22,6 +22,7 @@
     <script src="{% static 'Equino/js/jquery-3.7.1.min.js' %}"></script>
     <script src="{% static 'Equino/js/bootstrap.bundle.min.js' %}"></script>
     <script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
@@ -121,10 +122,19 @@
         </nav>
 
         <div class="content container mt-5">
+            {% if messages %}
+            <div id="messages-container">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% block contenedor %}
             {% endblock %}
         </div>
-
         <!-- Footer -->
         <footer class="bg-dark text-white footer">
             <div class="container">

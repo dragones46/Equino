@@ -4,6 +4,55 @@
 {% block titulo %}¿Quiénes somos?{% endblock %}
 
 {% block contenedor %}
-<h1>¿Quiénes somos?</h1>
-<p>Información sobre la empresa y su misión.</p>
+<style>
+    .quienes-somos-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .content-row {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .text-container {
+        width: 60%;
+        padding: 20px;
+        text-align: justify;
+    }
+
+    .image-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 35%;
+        gap: 20px;
+    }
+
+    .image-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+</style>
+
+<div class="quienes-somos-container">
+    <div class="content-row">
+        <div class="text-container">
+            <p>De la unión de nuestro amor por la nutrición equina y la escucha activa a cuidadores, jinetes y expertos en el mundo de la competición nació Equusline, dietas de alto valor nutricional adaptadas a las necesidades nutricionales de cada caballo en función de su actividad, estado fisiológico y desarrollo.</p>
+            <p>Los minerales representan sólo la fracción más pequeña del peso de la ración diaria del alimento, sin embargo, son de vital importancia para literalmente docenas de funciones corporales diarias. He aquí un resumen de los minerales más importantes en la dieta del caballo.</p>
+        </div>
+        <div class="image-container">
+            <img src="{% static 'Equino/img/caballos.png' %}" alt="Caballo comiendo">
+            <img src="{% static 'Equino/img/mano.png' %}" alt="Alimento para caballo">
+        </div>
+    </div>
+</div>
 {% endblock %}

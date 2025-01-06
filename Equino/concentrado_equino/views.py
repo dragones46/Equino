@@ -8,6 +8,7 @@ from rest_framework.authtoken.models import Token
 from django.urls import reverse
 from urllib.parse import urlencode
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
 
 from django.db.models import Q
 
@@ -84,15 +85,87 @@ def quienes_somos(request):
 
 #productos
 def productos(request):
-    return render(request, 'Equino/productos/productos.html')
+    productos = Producto.objects.all()
+    return render(request, 'Equino/productos/productos.html', {'productos': productos})
 
 #contactenos
 def contactenos(request):
     return render(request, 'Equino/contactenos/contactenos.html')
 
 # login y registro
-def iniciar_sesion(request):
+def registro(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        email = request.POST.get('email')
+        direccion = request.POST.get('direccion')
+        password1 = request.POST.get('contrasena')
+        password2 = request.POST.get('confirmar_contrasena')
+
+        if password1 != password2:
+            messages.warning(request, "Las contraseñas no coinciden")
+            return redirect("registro")
+
+        if Usuario.objects.filter(email=email).exists():
+            messages.warning(request, "El correo ya está registrado")
+            return redirect("registro")
+
+        Usuario.objects.create(
+            nombre=nombre,
+            email=email,
+            direccion=direccion,
+            password=hash_password(password1)
+        )
+        messages.success(request, "Usuario creado exitosamente")
+        return redirect("iniciar_sesion")
+
+    return render(request, 'Equino/registro/registro.html')
+
+def login(request):
+    if request.method == 'POST':
+        # Asegúrate de que uses .get() en lugar de () para acceder a los valores
+        email = request.POST.get('email')  # Acceso correcto al campo email
+        password = request.POST.get('password')  # Acceso correcto al campo password
+
+        try:
+            user = Usuario.objects.get(email=email)
+            if verify_password(password, user.password):  # Verifica la contraseña correctamente
+                request.session["logueo"] = {
+                    "id": user.id,
+                    "nombre": user.nombre,
+                    "rol": user.rol,
+                    "nombre_rol": user.get_rol_display(),
+                    "foto": user.foto.url if user.foto else None
+                }
+                messages.success(request, "Has iniciado sesión exitosamente")
+                return redirect("index")
+            else:
+                messages.warning(request, "Usuario o contraseña incorrectos")
+        except Usuario.DoesNotExist:
+            messages.warning(request, "Usuario no encontrado o no existe")
+
     return render(request, 'Equino/login/iniciar_sesion.html')
 
-def registrarse(request):
-    return render(request, 'Equino/registro/registro.html')
+
+
+def logout(request):
+    if "logueo" in request.session:
+        del request.session["logueo"]
+        messages.success(request, "Sesión cerrada correctamente")
+    else:
+        messages.warning(request, "No hay sesión activa.")
+    return redirect("index")
+
+@login_required
+def ver_perfil(request):
+    logueo = request.session.get("logueo", False)
+    if not logueo:
+        return redirect('login')
+
+    user = get_object_or_404(Usuario, pk=logueo["id"])
+
+    ruta = "fennys/perfil/ver_perfil.html"
+
+    roles = Usuario.ROLES
+    estado = user.estado
+    contexto = {'user': user, 'roles': roles, 'estado': estado, 'url': 'Perfil'}
+    return render(request, ruta, contexto)

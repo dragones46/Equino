@@ -7,10 +7,13 @@ from . import views
 urlpatterns = [
 
 #inicio
-    path('', views.index, name='home'),
+    path('', views.index, name='index'),
     path('quienes-somos/', views.quienes_somos, name='quienes_somos'),
     path('productos/', views.productos, name='productos'),
     path('contactenos/', views.contactenos, name='contactenos'),
-    path('iniciar-sesion/', views.iniciar_sesion, name='iniciar_sesion'),
-    path('registrarse/', views.registrarse, name='registrarse'),
+    path('iniciar-sesion/', views.login, name='iniciar_sesion'),
+    path('registrarse/', views.registro, name='registrarse'),
+    path('logout/', views.logout, name='logout'),
+    path('ver-perfil/', views.ver_perfil, name='ver_perfil'),
+
 ]

@@ -5,12 +5,12 @@ from .models import *
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ['id','nombre','descripcion','precio','foto']
+    list_display = ['id','nombre','descripcion','precio','kg','ver_foto']
     list_filter = ['id','nombre']
-    list_editable = ['nombre','descripcion','precio','foto']
+    list_editable = ['nombre','descripcion','precio','kg']
 
     def ver_foto(self, obj):
-        return mark_safe(f"<a href='{obj.foto.url}'><img src='{obj.foto.url}' width='10%'></a>")
+        return mark_safe(f"<a href='{obj.foto.url}'><img src='{obj.foto.url}' width='50%'></a>")
     
 @admin.register(Usuario)
 class UsuarioAdmin(admin.ModelAdmin):

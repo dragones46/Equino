@@ -16,23 +16,23 @@
                         {% csrf_token %}
                         <div class="form-group mb-3">
                             <label for="nombre" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="nombre" placeholder="Nombre" required>
+                            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="correo" class="form-label">Correo electrónico</label>
-                            <input type="email" class="form-control" id="correo" placeholder="Correo electrónico" required>
+                            <input type="email" class="form-control" id="correo" name="email" placeholder="Correo electrónico" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="direccion" class="form-label">Dirección</label>
-                            <input type="text" class="form-control" id="direccion" placeholder="Dirección" required>
+                            <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Dirección" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="contrasena" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="contrasena" placeholder="Contraseña" required>
+                            <input type="password" class="form-control" id="contrasena" name="contrasena" placeholder="Contraseña" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="confirmar_contrasena" class="form-label">Confirmar Contraseña</label>
-                            <input type="password" class="form-control" id="confirmar_contrasena" placeholder="Confirmar Contraseña" required>
+                            <input type="password" class="form-control" id="confirmar_contrasena" name="confirmar_contrasena" placeholder="Confirmar Contraseña" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Registrarse</button>
                     </form>

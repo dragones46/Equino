@@ -21,6 +21,7 @@ class Producto(models.Model):
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     foto = models.ImageField(upload_to='productos/')
+    kg = models.DecimalField(max_digits=10, decimal_places=2)  # Nuevo campo para los kilogramos
 
     def __str__(self):
         return self.nombre
