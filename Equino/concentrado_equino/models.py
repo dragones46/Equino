@@ -42,7 +42,7 @@ class Usuario(models.Model):
         (2, "Bloqueado"),
     )
     estado = models.IntegerField(choices=ESTADO, default=1)
-    foto = models.ImageField(upload_to="Img_usuarios/", default="Img_usuarios/default.png", blank=True)
+    foto = models.ImageField(upload_to='usuarios/', null=True, blank=True, default='usuarios/default.png')
     token_recuperar = models.CharField(max_length=254, default="", blank=True, null=True)
     def __str__(self):
         return self.nombre
