@@ -23,7 +23,8 @@
         }
 
         .navbar-brand {
-            margin-left: 0; /* Eliminamos el margen adicional */
+            margin-left: 0;
+            /* Eliminamos el margen adicional */
             font-size: 1.5rem;
             font-weight: bold;
         }
@@ -53,23 +54,33 @@
             bottom: 0;
             width: 100%;
             padding: 20px 0;
-            background-color: #343a40; /* Color de fondo del footer */
+            background-color: #343a40;
+            /* Color de fondo del footer */
         }
 
         .footer .text-center {
-            margin: 1; /* Eliminar margen para centrar */
+            margin: 1;
+            /* Eliminar margen para centrar */
         }
 
         .footer-info {
-            text-align: right; /* Alinear a la derecha */
+            text-align: right;
+            /* Alinear a la derecha */
         }
 
         .content {
-            min-height: calc(100vh - 200px); /* Ajustar el contenido para que el footer esté al final */
+            min-height: calc(100vh - 200px);
+            /* Ajustar el contenido para que el footer esté al final */
         }
+
         .footer-center {
             text-align: center;
             margin-bottom: 10px;
+        }
+
+        .content {
+            min-height: calc(100vh - 200px);
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -80,7 +91,8 @@
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
                 <a class="navbar-brand" href="/">TECHNOLOGIC NEGORGE</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -100,11 +112,13 @@
                     <ul class="navbar-nav">
                         {% if request.session.logueo %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                                 {% if request.session.logueo.foto %}
                                 <img src="{{ request.session.logueo.foto }}" alt="FotoUsuario" class="profile-image">
                                 {% else %}
-                                <img src="{% static 'Equino/img/default.png' %}" alt="LogoUsuario" class="profile-image">
+                                <img src="{% static 'Equino/img/default.png' %}" alt="LogoUsuario"
+                                    class="profile-image">
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -116,13 +130,13 @@
                         <li class="nav-item">
                             <a class="btn btn-outline-success me-2" href="{% url 'iniciar_sesion' %}">Iniciar sesión</a>
                         </li>
-                        
+
                         <li class="nav-item">
                             <a class="btn btn-outline-secondary" href="{% url 'registrarse' %}">Registrarse</a>
                         </li>
                         {% endif %}
                     </ul>
-                </div>                
+                </div>
             </div>
         </nav>
 

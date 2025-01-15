@@ -24,7 +24,75 @@
                     <p><strong>Dirección:</strong> {{ user.direccion }}</p>
                     <p><strong>Rol:</strong> {{ user.get_rol_display }}</p>
                     <p><strong>Estado:</strong> {{ user.get_estado_display }}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editarPerfilModal">
+                            Editar Perfil
+                        </button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cambiarContrasenaModal">
+                            Cambiar Contraseña
+                        </button>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar perfil -->
+<div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-labelledby="editarPerfilModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarPerfilModalLabel">Editar Perfil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'editar_perfil' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label"><strong>Nombre:</strong></label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ user.nombre }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label"><strong>Correo:</strong></label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label"><strong>Dirección:</strong></label>
+                        <input type="text" class="form-control" id="direccion" name="direccion" value="{{ user.direccion }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="foto" class="form-label"><strong>Foto de Perfil:</strong></label>
+                        <input type="file" class="form-control" id="foto" name="foto">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cambiar contraseña -->
+<div class="modal fade" id="cambiarContrasenaModal" tabindex="-1" aria-labelledby="cambiarContrasenaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cambiarContrasenaModalLabel">Cambiar Contraseña</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'cambiar_contrasena' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="contrasena" class="form-label"><strong>Nueva Contraseña:</strong></label>
+                        <input type="password" class="form-control" id="contrasena" name="contrasena" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmar_contrasena" class="form-label"><strong>Confirmar Contraseña:</strong></label>
+                        <input type="password" class="form-control" id="confirmar_contrasena" name="confirmar_contrasena" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                </form>
             </div>
         </div>
     </div>

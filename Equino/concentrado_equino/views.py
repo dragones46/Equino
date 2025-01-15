@@ -155,6 +155,7 @@ def logout(request):
         messages.warning(request, "No hay sesión activa.")
     return redirect("index")
 
+# Perfil
 @login_required
 def ver_perfil(request):
     logueo = request.session.get("logueo", False)
@@ -163,9 +164,63 @@ def ver_perfil(request):
 
     user = get_object_or_404(Usuario, pk=logueo["id"])
 
-    ruta = "fennys/perfil/ver_perfil.html"
+    ruta = "Equino/usuario/perfil.html"
 
     roles = Usuario.ROLES
     estado = user.estado
     contexto = {'user': user, 'roles': roles, 'estado': estado, 'url': 'Perfil'}
     return render(request, ruta, contexto)
+
+@login_required
+def editar_perfil(request):
+    if request.method == 'POST':
+        logueo = request.session.get("logueo", False)
+        if not logueo:
+            return redirect('iniciar_sesion')
+
+        user = get_object_or_404(Usuario, pk=logueo["id"])
+        nombre = request.POST.get('nombre')
+        email = request.POST.get('email')
+        direccion = request.POST.get('direccion')
+        foto = request.FILES.get('foto')
+
+        user.nombre = nombre
+        user.email = email
+        user.direccion = direccion
+
+        if foto:
+            user.foto = foto
+
+        user.save()
+
+        # Actualizar la sesión con la nueva foto
+        request.session["logueo"]["foto"] = user.foto.url if user.foto else None
+
+        messages.success(request, "Perfil actualizado exitosamente")
+        return redirect('ver_perfil')
+
+    return redirect('ver_perfil')
+
+@login_required
+def cambiar_contrasena(request):
+    if request.method == 'POST':
+        logueo = request.session.get("logueo", False)
+        if not logueo:
+            return redirect('iniciar_sesion')
+
+        user = get_object_or_404(Usuario, pk=logueo["id"])
+        contrasena = request.POST.get('contrasena')
+        confirmar_contrasena = request.POST.get('confirmar_contrasena')
+
+        if contrasena != confirmar_contrasena:
+            messages.warning(request, "Las contraseñas no coinciden")
+            return redirect('ver_perfil')
+
+        user.password = hash_password(contrasena)
+        user.save()
+
+        messages.success(request, "Contraseña cambiada exitosamente")
+        return redirect('ver_perfil')
+
+    return redirect('ver_perfil')
+
