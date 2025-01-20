@@ -193,13 +193,20 @@ def editar_perfil(request):
 
         user.save()
 
-        # Actualizar la sesión con la nueva foto
-        request.session["logueo"]["foto"] = user.foto.url if user.foto else None
+        # Actualizar la sesión con los nuevos datos del usuario, incluyendo el 'id'
+        request.session["logueo"] = {
+            "id": user.id,  # Mantener el id
+            "nombre": user.nombre,
+            "rol": user.rol,  # Asegúrate de que esto sea correcto
+            "nombre_rol": user.get_rol_display(),
+            "foto": user.foto.url if user.foto else None  # Actualiza la foto
+        }
 
         messages.success(request, "Perfil actualizado exitosamente")
         return redirect('ver_perfil')
 
     return redirect('ver_perfil')
+
 
 @login_required
 def cambiar_contrasena(request):
