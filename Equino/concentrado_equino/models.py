@@ -19,9 +19,9 @@ from django.utils import timezone
 class Producto(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    precio = models.IntegerField()
     foto = models.ImageField(upload_to='productos/')
-    kg = models.DecimalField(max_digits=10, decimal_places=2)  # Nuevo campo para los kilogramos
+    kg = models.IntegerField()
 
     def __str__(self):
         return self.nombre

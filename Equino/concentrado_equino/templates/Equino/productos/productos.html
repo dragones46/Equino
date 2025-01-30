@@ -54,8 +54,8 @@
                 <img src="{{ producto.foto.url }}" class="card-img-top" alt="{{ producto.nombre }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ producto.nombre }}</h5>
-                    <h5 class="card-title">{{ producto.kg | floatformat:0 }}kg</h5>
-                    <p class="card-text">${{ producto.precio | floatformat:0 | intcomma }}</p>
+                    <h5 class="card-title kg">{{ producto.kg }}kg</h5>
+                    <p class="card-text price">${{ producto.precio }}</p> <!-- Eliminar decimales y agregar coma -->
                     <a href="#" class="btn btn-primary">
                         <i class="fas fa-shopping-cart"></i>
                     </a>
@@ -64,4 +64,7 @@
         </div>
     {% endfor %}
 </div>
+<script src="{% static 'Equino/js/formato_price.js' %}"></script>
+
 {% endblock %}
+
