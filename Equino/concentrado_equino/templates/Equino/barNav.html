@@ -15,7 +15,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="{% static './Equino/css/style.css' %}" rel="stylesheet">
-    
+
     <!--icono de pestaña de la pagina-->
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'Equino/img/favicon-32x32.png' %}">
 
@@ -86,6 +86,14 @@
         .content {
             min-height: calc(100vh - 200px);
             margin-bottom: 20px;
+        }
+
+        .footer-contact {
+            margin-top: 10px;
+        }
+
+        .footer-contact p {
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -169,12 +177,11 @@
                         <p>© 2024 Powered</p>
                     </div>
                     <div class="col-md-6 footer-info">
-                        <p>- Atención al cliente</p>
-                        <p>
-                            <i class="fas fa-phone-alt"></i> Llamadas: 32594565442
-                            <br>
-                            <i class="fab fa-whatsapp"></i> WhatsApp: 32594565442
-                        </p>
+                        <h5>Atención al cliente:</h5>
+                        <div class="footer-contact">
+                            <p><i class="fab fa-whatsapp"></i> WhatsApp: 32594565442</p>
+                            <p><i class="fas fa-phone-alt"></i> Llamadas: 32594565442</p>
+                        </div>
                     </div>
                 </div>
             </div>
