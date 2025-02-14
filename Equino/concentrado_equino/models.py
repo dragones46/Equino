@@ -36,7 +36,7 @@ class Usuario(models.Model):
         (2, "Vendedor"),
         (3, "Cliente"),
     )
-    rol = models.IntegerField(choices=ROLES, default=4)
+    rol = models.IntegerField(choices=ROLES, default=3)
     ESTADO = (
         (1, "Activo"),
         (2, "Bloqueado"),
