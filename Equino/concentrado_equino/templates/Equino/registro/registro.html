@@ -17,10 +17,16 @@
                         <div class="form-group mb-3">
                             <label for="nombre" class="form-label">Nombre</label>
                             <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre" required>
+                            <div class="invalid-feedback">
+                                El nombre solo puede contener letras y espacios.
+                            </div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="correo" class="form-label">Correo electrónico</label>
                             <input type="email" class="form-control" id="correo" name="email" placeholder="Correo electrónico" required>
+                            <div class="invalid-feedback">
+                                Por favor, ingrese un correo electrónico válido.
+                            </div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="direccion" class="form-label">Dirección</label>
@@ -44,4 +50,5 @@
         </div>
     </div>
 </div>
+<Script src="{% static 'Equino/js/validar_registro.js' %}"></Script>
 {% endblock %}

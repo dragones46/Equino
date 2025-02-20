@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
@@ -101,13 +102,23 @@ def registro(request):
         password1 = request.POST.get('contrasena')
         password2 = request.POST.get('confirmar_contrasena')
 
+        # Validación de nombre: solo letras y espacios
+        if not re.match("^[A-Za-z\s]+$", nombre):
+            messages.warning(request, "El nombre solo puede contener letras y espacios.")
+            return redirect("registrarse")
+
+        # Validación de correo electrónico
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            messages.warning(request, "Por favor, ingrese un correo electrónico válido.")
+            return redirect("registrarse")
+
         if password1 != password2:
             messages.warning(request, "Las contraseñas no coinciden")
-            return redirect("registro")
+            return redirect("registrarse")
 
         if Usuario.objects.filter(email=email).exists():
             messages.warning(request, "El correo ya está registrado")
-            return redirect("registro")
+            return redirect("registrarse")
 
         Usuario.objects.create(
             nombre=nombre,
