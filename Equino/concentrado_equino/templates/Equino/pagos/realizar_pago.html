@@ -1,0 +1,15 @@
+{% extends 'Equino/barNav.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<h1>Realizar Pago</h1>
+
+<p>Valor total a pagar: ${{ total }}</p>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Enviar</button>
+</form>
+{% endblock %}

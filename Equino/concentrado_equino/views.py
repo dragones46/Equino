@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
 from django.core.files.uploadedfile import SimpleUploadedFile
+import qrcode
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -10,6 +11,7 @@ from django.urls import reverse
 from urllib.parse import urlencode
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
 
 from django.db.models import Q
 
@@ -242,3 +244,77 @@ def cambiar_contrasena(request):
 
     return redirect('ver_perfil')
 
+#CRUD PRODUCTOS
+
+def lista_productos(request):
+    productos = Producto.objects.all()
+    return render(request, 'productos/lista_productos.html', {'productos': productos})
+
+# Vistas del carrito de compras
+@login_required
+def ver_carrito(request):
+    print(request.user)  # Esto imprimirá el usuario actual en la consola
+
+    pedido = Pedido.objects.filter(usuario=request.user, estado=1).first()
+    total = pedido.total() if pedido else 0
+    return render(request, 'carrito/ver_carrito.html', {'pedido': pedido, 'total': total})
+
+@login_required
+def agregar_producto_carrito(request, producto_id):
+    # Obtén el producto que se va a agregar
+    producto = get_object_or_404(Producto, id=producto_id)
+
+    # Obtén o crea un pedido para el usuario autenticado
+    pedido, created = Pedido.objects.get_or_create(usuario=request.user, estado=1)
+
+    # Agregar el producto al pedido
+    item, created = PedidoItem.objects.get_or_create(pedido=pedido, producto=producto)
+
+    if not created:
+        item.cantidad += 1  # Incrementar la cantidad si el producto ya está en el carrito
+        item.save()
+
+    messages.success(request, f'Producto {producto.nombre} agregado al carrito.')
+    return redirect('ver_carrito')
+
+@login_required
+def eliminar_producto_carrito(request, item_id):
+    item = get_object_or_404(PedidoItem, id=item_id, pedido__usuario=request.user)
+    item.delete()
+    return redirect('ver_carrito')
+
+# Generar QR para pagos
+def generar_qr(codigo_pago):
+    qr = qrcode.make(codigo_pago)
+    buffer = BytesIO()
+    qr.save(buffer, format='PNG')
+    return ContentFile(buffer.getvalue(), name=f'qr_{codigo_pago}.png')
+
+# Enviar email de pago
+def enviar_email_pago(pago):
+    subject = 'Nuevo Pago Recibido'
+    message = f'Un nuevo pago ha sido recibido:\n\nCódigo de Pago: {pago.codigo_pago}\nValor Total: {pago.valor_total}'
+    email = EmailMessage(subject, message, settings.DEFAULT_FROM_EMAIL, [settings.ADMIN_EMAIL])
+    if pago.comprobante_pago:
+        email.attach_file(pago.comprobante_pago.path)
+    email.send()
+
+# Procesar pago del carrito
+@login_required
+def realizar_pago(request):
+    pedido = get_object_or_404(Pedido, usuario=request.user, estado=1)
+
+    if request.method == 'POST':
+        form = PagoForm(request.POST, request.FILES)
+        if form.is_valid():
+            pago = form.save(commit=False)
+            pago.pedido = pedido
+            pago.valor_total = pedido.total()
+            pago.save()
+            pedido.estado = 2  # Marcar como completado
+            pedido.save()
+            return redirect('pago_exitoso')
+    else:
+        form = PagoForm()
+
+    return render(request, 'pagos/realizar_pago.html', {'form': form, 'pedido': pedido})

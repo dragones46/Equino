@@ -1,0 +1,21 @@
+{% extends 'Equino/barNav.html' %}
+{% load static %}
+{% block titulo %}Carrito de Compras{% endblock %}
+
+{% block contenedor %}
+<h1>Carrito de Compras</h1>
+<ul>
+    {% for item in pedido.pedidoitem_set.all %}
+        <li>
+            {{ item.producto.nombre }} - ${{ item.producto.precio }} x {{ item.cantidad }}
+            <form action="{% url 'eliminar_producto_carrito' item.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Eliminar</button>
+            </form>
+        </li>
+    {% endfor %}
+</ul>
+<p>Total: ${{ total }}</p>
+<a href="{% url 'realizar_pago' %}">Pagar</a>
+
+{% endblock %}
