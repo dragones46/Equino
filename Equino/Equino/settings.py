@@ -132,4 +132,29 @@ MEDIA_ROOT = BASE_DIR / 'media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'deivysarrazola@gmail.com'
+EMAIL_HOST_PASSWORD = 'djxs pwum lert nmas'
+DEFAULT_FROM_EMAIL = 'deivysarrazola@gmail.com'
+ADMIN_EMAIL = 'deivy273@gmail.com'
+
+# Rest Framework
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'concentrado_equino.utils.custom_exception_handler',
+	'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+AUTH_USER_MODEL = "concentrado_equino.Usuario"
+AUTH_PROFILE_MODULE = "concentrado_equino.Usuario"
+
 

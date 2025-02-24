@@ -189,7 +189,7 @@ def editar_perfil(request):
     if request.method == 'POST':
         logueo = request.session.get("logueo", False)
         if not logueo:
-            return redirect('iniciar_sesion')
+            return redirect('login')
 
         user = get_object_or_404(Usuario, pk=logueo["id"])
         nombre = request.POST.get('nombre')
@@ -226,7 +226,7 @@ def cambiar_contrasena(request):
     if request.method == 'POST':
         logueo = request.session.get("logueo", False)
         if not logueo:
-            return redirect('iniciar_sesion')
+            return redirect('login')
 
         user = get_object_or_404(Usuario, pk=logueo["id"])
         contrasena = request.POST.get('contrasena')
@@ -252,36 +252,92 @@ def lista_productos(request):
 
 # Vistas del carrito de compras
 @login_required
-def ver_carrito(request):
-    print(request.user)  # Esto imprimirá el usuario actual en la consola
+def agregar_producto_carrito(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    
+    # Verifica que el usuario esté en request.user
+    if not request.user.is_authenticated:
+        messages.warning(request, "Debes iniciar sesión para agregar productos al carrito")
+        return redirect('login')
+    
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+    carrito_item, item_created = CarritoItem.objects.get_or_create(carrito=carrito, producto=producto)
+    
+    if not item_created:
+        carrito_item.cantidad += 1
+        carrito_item.save()
+    
+    # Contar items en el carrito
+    count = CarritoItem.objects.filter(carrito=carrito).count()
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'count': count})
+    
+    messages.success(request, "Producto agregado al carrito")
+    return redirect('ver_carrito')
 
-    pedido = Pedido.objects.filter(usuario=request.user, estado=1).first()
-    total = pedido.total() if pedido else 0
-    return render(request, 'carrito/ver_carrito.html', {'pedido': pedido, 'total': total})
+# Agregar esta vista para obtener el contador del carrito
+def get_cart_count(request):
+    if request.user.is_authenticated:
+        try:
+            carrito = Carrito.objects.get(usuario=request.user)
+            count = CarritoItem.objects.filter(carrito=carrito).count()
+        except Carrito.DoesNotExist:
+            count = 0
+    else:
+        count = 0
+    return JsonResponse({'count': count})
 
 @login_required
-def agregar_producto_carrito(request, producto_id):
-    # Obtén el producto que se va a agregar
-    producto = get_object_or_404(Producto, id=producto_id)
-
-    # Obtén o crea un pedido para el usuario autenticado
-    pedido, created = Pedido.objects.get_or_create(usuario=request.user, estado=1)
-
-    # Agregar el producto al pedido
-    item, created = PedidoItem.objects.get_or_create(pedido=pedido, producto=producto)
-
-    if not created:
-        item.cantidad += 1  # Incrementar la cantidad si el producto ya está en el carrito
-        item.save()
-
-    messages.success(request, f'Producto {producto.nombre} agregado al carrito.')
-    return redirect('ver_carrito')
+def ver_carrito(request):
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+    items = carrito.carritoitem_set.all()
+    total = carrito.total()
+    carrito_vacio = not items.exists()  # Añade esta línea para determinar si el carrito está vacío
+    return render(request, 'Equino/carrito/ver_carrito.html', {'items': items, 'total': total, 'carrito_vacio': carrito_vacio})
 
 @login_required
 def eliminar_producto_carrito(request, item_id):
-    item = get_object_or_404(PedidoItem, id=item_id, pedido__usuario=request.user)
+    item = get_object_or_404(CarritoItem, id=item_id)
     item.delete()
     return redirect('ver_carrito')
+
+@login_required
+def vaciar_carrito(request):
+    carrito = get_object_or_404(Carrito, usuario=request.user)
+    carrito.carritoitem_set.all().delete()
+    return redirect('ver_carrito')
+
+@login_required
+def realizar_pago(request):
+    if request.method == 'POST':
+        carrito = get_object_or_404(Carrito, usuario=request.user)
+        total = carrito.total()
+        pedido = Pedido.objects.create(usuario=request.user, total=total)
+
+        for item in carrito.carritoitem_set.all():
+            PedidoItem.objects.create(pedido=pedido, producto=item.producto, cantidad=item.cantidad)
+
+        pago = Pago.objects.create(
+            pedido=pedido,
+            valor_total=total,
+            codigo_pago=request.POST['codigo_pago'],
+            qr_codigo=request.FILES['qr_codigo'],
+            comprobante_pago=request.FILES['comprobante_pago']
+        )
+
+        # Enviar correo al administrador
+        send_mail(
+            'Nuevo pago realizado',
+            f'Se ha realizado un nuevo pago con código {pago.codigo_pago}.',
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.ADMIN_EMAIL],
+        )
+
+        carrito.carritoitem_set.all().delete()
+        return redirect('ver_carrito')
+
+    return render(request, 'Equino/pagos/realizar_pago.html')
 
 # Generar QR para pagos
 def generar_qr(codigo_pago):

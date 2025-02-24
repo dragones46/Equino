@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -15,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="{% static './Equino/css/style.css' %}" rel="stylesheet">
 
-    <!--icono de pestaña de la pagina-->
+    <!--icono de pestaña de la página-->
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'Equino/img/favicon-32x32.png' %}">
 
     <!-- Scripts -->
@@ -53,14 +52,10 @@
 
         .navbar .badge {
             position: relative;
-            /* Cambiado de absolute a relative */
             top: -1px;
-            /* Ajustar la posición vertical */
             right: 0;
-            /* Sin desplazamiento horizontal */
             font-size: 0.75rem;
             margin-left: -2px;
-            /* Ajusta este valor según se necesite */
         }
 
         /* Estilos para el footer */
@@ -78,12 +73,10 @@
 
         .footer-info {
             text-align: right;
-            /* Alinear a la derecha */
         }
 
         .content {
             min-height: calc(100vh - 200px);
-            /* Ajustar el contenido para que el footer esté al final */
         }
 
         .footer-center {
@@ -103,8 +96,6 @@
         .footer-contact p {
             margin: 5px 0;
         }
-
-
     </style>
 </head>
 
@@ -130,21 +121,10 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'contactenos' %}">Contáctenos</a>
                         </li>
-
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'ver_carrito' %}">
                                 <i class="fas fa-shopping-cart"></i>
-                                <span class="badge bg-danger">
-                                    {% if pedido %}
-                                    {% if pedido.productos.count > 99 %}
-                                    +99
-                                    {% else %}
-                                    {{ pedido.productos.count }}
-                                    {% endif %}
-                                    {% else %}
-                                    0
-                                    {% endif %}
-                                </span>
+                                <span class="badge bg-danger" id="cart-count">0</span>
                             </a>
                         </li>
                     </ul>
@@ -168,9 +148,8 @@
                         </li>
                         {% else %}
                         <li class="nav-item">
-                            <a class="btn btn-outline-success me-2" href="{% url 'iniciar_sesion' %}">Iniciar sesión</a>
+                            <a class="btn btn-outline-success me-2" href="{% url 'login' %}">Iniciar sesión</a>
                         </li>
-
                         <li class="nav-item">
                             <a class="btn btn-outline-secondary" href="{% url 'registrarse' %}">Registrarse</a>
                         </li>
@@ -223,6 +202,65 @@
             $('.carousel').carousel();
         });
     </script>
+
+<!-- Reemplaza el script actual por este -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Función para actualizar el contador del carrito desde el servidor
+        function updateCartCountFromServer() {
+            fetch('{% url "get_cart_count" %}')
+                .then(response => response.json())
+                .then(data => {
+                    let cartCount = document.getElementById("cart-count");
+                    cartCount.textContent = data.count;
+                })
+                .catch(error => {
+                    console.error('Error al obtener contador del carrito:', error);
+                });
+        }
+        
+        // Actualiza el contador al cargar la página
+        updateCartCountFromServer();
+        
+        // Exponer función para agregar producto mediante AJAX
+        window.addToCartAjax = function(productId) {
+            fetch(`/agregar-producto-carrito/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let cartCount = document.getElementById("cart-count");
+                cartCount.textContent = data.count;
+                // Mostrar mensaje de éxito
+                alert('Producto agregado al carrito');
+            })
+            .catch(error => {
+                console.error('Error al agregar producto:', error);
+            });
+        }
+        
+        // Función para obtener el token CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+
 </body>
 
 </html>

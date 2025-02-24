@@ -1,5 +1,4 @@
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from rest_framework import authentication
 from rest_framework import exceptions

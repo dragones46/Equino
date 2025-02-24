@@ -13,7 +13,7 @@ urlpatterns = [
     path('contactenos/', views.contactenos, name='contactenos'),
 
 #usuario
-    path('iniciar-sesion/', views.login, name='iniciar_sesion'),
+    path('iniciar_sesion/', views.login, name='login'),
     path('registrarse/', views.registro, name='registrarse'),
     path('logout/', views.logout, name='logout'),
     path('ver-perfil/', views.ver_perfil, name='ver_perfil'),
@@ -21,15 +21,15 @@ urlpatterns = [
     path('cambiar_contrasena/', views.cambiar_contrasena, name='cambiar_contrasena'),
 
 #carrito
-    path('carrito/', views.ver_carrito, name='ver_carrito'),
-    path('carrito/agregar/<int:producto_id>/', views.agregar_producto_carrito, name='agregar_producto_carrito'),
-    path('carrito/eliminar/<int:item_id>/', views.eliminar_producto_carrito, name='eliminar_producto_carrito'),
-    path('pagar/', views.realizar_pago, name='realizar_pago'),
+    path('agregar_producto_carrito/<int:producto_id>/', views.agregar_producto_carrito, name='agregar_producto_carrito'),
+    path('ver_carrito/', views.ver_carrito, name='ver_carrito'),
+    path('eliminar_producto_carrito/<int:item_id>/', views.eliminar_producto_carrito, name='eliminar_producto_carrito'),
+    path('vaciar_carrito/', views.vaciar_carrito, name='vaciar_carrito'),
+    path('realizar_pago/', views.realizar_pago, name='realizar_pago'),
+    path('get-cart-count/', views.get_cart_count, name='get_cart_count'),
 
 
 #CRUD PRODUCTOS
     path('productos/', views.lista_productos, name='lista_productos'),
 
-#pagos
-    path('pagar/', views.realizar_pago, name='pagar'),
 ]
