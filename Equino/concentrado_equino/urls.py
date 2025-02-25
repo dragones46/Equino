@@ -30,6 +30,6 @@ urlpatterns = [
 
 
 #CRUD PRODUCTOS
-    path('productos/', views.lista_productos, name='lista_productos'),
+    path('gestionar-productos/', views.gestionar_productos, name='gestionar_productos'),
 
 ]

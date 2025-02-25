@@ -12,6 +12,7 @@ from urllib.parse import urlencode
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
+from django.contrib.auth.hashers import make_password
 
 from django.db.models import Q
 
@@ -114,22 +115,28 @@ def registro(request):
             messages.warning(request, "Por favor, ingrese un correo electrónico válido.")
             return redirect("registrarse")
 
+        # Validación de contraseñas
         if password1 != password2:
-            messages.warning(request, "Las contraseñas no coinciden")
+            messages.warning(request, "Las contraseñas no coinciden.")
             return redirect("registrarse")
 
+        # Verificar si el usuario ya existe (email o nombre como username)
         if Usuario.objects.filter(email=email).exists():
-            messages.warning(request, "El correo ya está registrado")
+            messages.warning(request, "El correo ya está registrado.")
             return redirect("registrarse")
 
+
+        # Crear el usuario con contraseña encriptada
         Usuario.objects.create(
             nombre=nombre,
             email=email,
+            username=email,
             direccion=direccion,
-            password=hash_password(password1)
+            password=hash_password(password1)  # Usamos make_password de Django
         )
-        messages.success(request, "Usuario creado exitosamente")
-        return redirect("iniciar_sesion")
+
+        messages.success(request, "Usuario creado exitosamente.")
+        return redirect("login")
 
     return render(request, 'Equino/registro/registro.html')
 
@@ -246,9 +253,41 @@ def cambiar_contrasena(request):
 
 #CRUD PRODUCTOS
 
-def lista_productos(request):
+@login_required
+def gestionar_productos(request):
+    if request.user.rol != 1:
+        return redirect('perfil')
+
     productos = Producto.objects.all()
-    return render(request, 'productos/lista_productos.html', {'productos': productos})
+
+    if request.method == 'POST':
+        if 'eliminar' in request.POST:
+            producto_id = request.POST.get('eliminar')
+            producto = get_object_or_404(Producto, id=producto_id)
+            producto.delete()
+            messages.success(request, 'Producto eliminado correctamente.')
+            return redirect('gestionar_productos')
+
+        elif 'editar' in request.POST:
+            producto_id = request.POST.get('editar')
+            producto = get_object_or_404(Producto, id=producto_id)
+            form = ProductoForm(request.POST, request.FILES, instance=producto)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Producto editado correctamente.')
+                return redirect('gestionar_productos')
+
+        elif 'agregar' in request.POST:
+            form = ProductoForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Producto agregado correctamente.')
+                return redirect('gestionar_productos')
+
+    else:
+        form = ProductoForm()
+
+    return render(request, 'Equino/productos/gestionar_productos.html', {'productos': productos, 'form': form})
 
 # Vistas del carrito de compras
 @login_required

@@ -6,7 +6,7 @@
 {% block contenedor %}
 <div class="container mt-5">
     {% if user.rol == 1 %}
-    {% include 'Equino/barNavInicio.html' %}
+        {% include 'Equino/barNavInicio.html' %}
     {% endif %} <br>
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -17,11 +17,9 @@
                 <div class="card-body">
                     <div class="text-center mb-3">
                         {% if user.foto %}
-                        <img src="{{ user.foto.url }}" class="img-fluid rounded-circle" alt="{{ user.nombre }}"
-                            style="width: 150px; height: 150px;">
+                            <img src="{{ user.foto.url }}" class="img-fluid rounded-circle" alt="{{ user.nombre }}" style="width: 150px; height: 150px;">
                         {% else %}
-                        <img src="{% static 'img/default.png' %}" class="img-fluid rounded-circle" alt="Foto de perfil"
-                            style="width: 150px; height: 150px;">
+                            <img src="{% static 'img/default.png' %}" class="img-fluid rounded-circle" alt="Foto de perfil" style="width: 150px; height: 150px;">
                         {% endif %}
                     </div>
                     <p><strong>Nombre:</strong> {{ user.nombre }}</p>
@@ -30,12 +28,10 @@
                     <p><strong>Rol:</strong> {{ user.get_rol_display }}</p>
                     <p><strong>Estado:</strong> {{ user.get_estado_display }}</p>
                     <div class="d-flex justify-content-between align-items-center mt-3">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#editarPerfilModal">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editarPerfilModal">
                             Editar Perfil
                         </button>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#cambiarContrasenaModal">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cambiarContrasenaModal">
                             Cambiar Contraseña
                         </button>
                     </div>
@@ -46,8 +42,7 @@
 </div>
 
 <!-- Modal para editar perfil -->
-<div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-labelledby="editarPerfilModalLabel"
-    aria-hidden="true">
+<div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-labelledby="editarPerfilModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -67,8 +62,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="direccion" class="form-label"><strong>Dirección:</strong></label>
-                        <input type="text" class="form-control" id="direccion" name="direccion"
-                            value="{{ user.direccion }}">
+                        <input type="text" class="form-control" id="direccion" name="direccion" value="{{ user.direccion }}">
                     </div>
                     <div class="mb-3">
                         <label for="foto" class="form-label"><strong>Foto de Perfil:</strong></label>
@@ -82,8 +76,7 @@
 </div>
 
 <!-- Modal para cambiar contraseña -->
-<div class="modal fade" id="cambiarContrasenaModal" tabindex="-1" aria-labelledby="cambiarContrasenaModalLabel"
-    aria-hidden="true">
+<div class="modal fade" id="cambiarContrasenaModal" tabindex="-1" aria-labelledby="cambiarContrasenaModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -98,10 +91,8 @@
                         <input type="password" class="form-control" id="contrasena" name="contrasena" required>
                     </div>
                     <div class="mb-3">
-                        <label for="confirmar_contrasena" class="form-label"><strong>Confirmar
-                                Contraseña:</strong></label>
-                        <input type="password" class="form-control" id="confirmar_contrasena"
-                            name="confirmar_contrasena" required>
+                        <label for="confirmar_contrasena" class="form-label"><strong>Confirmar Contraseña:</strong></label>
+                        <input type="password" class="form-control" id="confirmar_contrasena" name="confirmar_contrasena" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
                 </form>

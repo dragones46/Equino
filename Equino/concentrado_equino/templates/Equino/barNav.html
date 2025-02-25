@@ -1,11 +1,11 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Equino - {% block titulo %}...{% endblock %}</title>
+    <title>{% block titulo %}...{% endblock %}</title>
 
     <!-- Bootstrap y estilos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -98,9 +98,9 @@
         }
     </style>
 </head>
-
 <body>
     <div class="wrapper">
+        {% if user.rol != 1 or request.resolver_match.url_name != 'ver_perfil' %}
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
@@ -158,6 +158,7 @@
                 </div>
             </div>
         </nav>
+        {% endif %}
 
         <!-- Contenido -->
         <div class="content container mt-5">
@@ -218,10 +219,10 @@
                     console.error('Error al obtener contador del carrito:', error);
                 });
         }
-        
+
         // Actualiza el contador al cargar la página
         updateCartCountFromServer();
-        
+
         // Exponer función para agregar producto mediante AJAX
         window.addToCartAjax = function(productId) {
             fetch(`/agregar-producto-carrito/${productId}/`, {
@@ -242,7 +243,7 @@
                 console.error('Error al agregar producto:', error);
             });
         }
-        
+
         // Función para obtener el token CSRF
         function getCookie(name) {
             let cookieValue = null;
@@ -262,5 +263,4 @@
 </script>
 
 </body>
-
 </html>

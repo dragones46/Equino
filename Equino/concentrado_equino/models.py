@@ -27,8 +27,12 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = ['nombre', 'descripcion', 'precio', 'foto', 'kg']
 
-# Modelo de Usuario
 # Modelo de Usuario
 class Usuario(AbstractUser):
     nombre = models.CharField(max_length=100)
