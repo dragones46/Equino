@@ -413,3 +413,12 @@ def realizar_pago(request):
         form = PagoForm()
 
     return render(request, 'pagos/realizar_pago.html', {'form': form, 'pedido': pedido})
+
+
+#admin
+@rol_requerido([1])
+def admin_dashboard(request):
+    if not request.user.is_staff:  # Check if the user is an admin
+        messages.warning(request, "Acceso denegado.")
+        return redirect('index')
+    return render(request, 'Equino/admin/dashboard.html')

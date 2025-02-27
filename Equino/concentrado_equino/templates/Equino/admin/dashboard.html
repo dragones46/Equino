@@ -1,0 +1,54 @@
+{% extends 'Equino/barNavInicio.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block titulo %}Admin Dashboard{% endblock %}
+
+{% block contenedor %}
+<div class="container mt-5">
+    <h2>Panel de Administración</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card">
+                <img src="{% static 'Equino/img/gestion_producto.png' %}" class="card-img-top" alt="Gestionar Productos">
+                <div class="card-body">
+                    <h5 class="card-title">Gestionar Productos</h5>
+                    <p>Aqui puedes gestionar tus productos</p>
+                    <a href="{% url 'gestionar_productos' %}" class="btn btn-primary">Ir</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <img src="{% static 'images/gestionar_usuarios.png' %}" class="card-img-top" alt="Gestionar Usuarios">
+                <div class="card-body">
+                    <h5 class="card-title">Gestionar Usuarios</h5>
+                    <p>Aqui puedes gestionar tus usuarios</p>
+                    <a href="#" class="btn btn-primary">Ir</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <img src="{% static 'images/gestionar_categorias.png' %}" class="card-img-top" alt="Gestionar Categorías">
+                <div class="card-body">
+                    <h5 class="card-title">Gestionar Categorías</h5>
+                    <p>Aqui puedes gestionar tus categorías</p>
+                    <a href="#" class="btn btn-primary">Ir</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <img src="{% static 'images/gestionar_pedidos.png' %}" class="card-img-top" alt="Gestionar Pedidos">
+                <div class="card-body">
+                    <h5 class="card-title">Gestionar Pedidos</h5>
+                    <p>Aqui puedes gestionar tus pedidos</p>
+                    <a href="#" class="btn btn-primary">Ir</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

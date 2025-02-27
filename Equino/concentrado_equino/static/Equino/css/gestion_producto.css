@@ -1,0 +1,32 @@
+.table th, .table td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.table img {
+    display: block;
+    margin: 0 auto;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.25rem;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    border-radius: 0.3rem;
+}
+
+.modal-dialog.modal-lg {
+    max-width: 800px;
+}
+
+.modal-body form .mb-3 {
+    margin-bottom: 1.5rem;
+}
+
+.modal-body form label {
+    font-size: 1rem;
+}
+
+.modal-body form .form-control {
+    font-size: 1rem;
+}

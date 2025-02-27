@@ -15,9 +15,9 @@
     }
 
     .product-card img {
-        width: 100%;
-        height: auto;
-        max-width: 200px;
+        width: 200px; /* Fixed width for all images */
+        height: 200px; /* Fixed height for all images */
+        object-fit: cover; /* Ensures the image covers the fixed dimensions without distortion */
     }
 
     .product-card .card-body {
@@ -55,7 +55,7 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ producto.nombre }}</h5>
                     <h5 class="card-title kg">{{ producto.kg }}kg</h5>
-                    <p class="card-text price">${{ producto.precio }}</p> <!-- Eliminar decimales y agregar coma -->
+                    <p class="card-text price">${{ producto.precio|intcomma }}</p> <!-- Eliminar decimales y agregar coma -->
                     <a href="{% url 'agregar_producto_carrito' producto.id %}" class="btn btn-primary">
                         <i class="fas fa-shopping-cart"></i>
                     </a>
@@ -67,4 +67,3 @@
 <script src="{% static 'Equino/js/formato_price.js' %}"></script>
 
 {% endblock %}
-

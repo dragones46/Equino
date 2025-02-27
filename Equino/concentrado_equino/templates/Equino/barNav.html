@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,9 +99,9 @@
         }
     </style>
 </head>
+
 <body>
     <div class="wrapper">
-        {% if user.rol != 1 or request.resolver_match.url_name != 'ver_perfil' %}
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
@@ -121,6 +122,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'contactenos' %}">Contáctenos</a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'ver_carrito' %}">
                                 <i class="fas fa-shopping-cart"></i>
@@ -142,6 +144,9 @@
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                {% if request.session.logueo.rol == 1 %}
+                                <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}">Admin</a></li>
+                                {% endif %}
                                 <li><a class="dropdown-item" href="{% url 'ver_perfil' %}">Ver Perfil</a></li>
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión</a></li>
                             </ul>
@@ -158,7 +163,6 @@
                 </div>
             </div>
         </nav>
-        {% endif %}
 
         <!-- Contenido -->
         <div class="content container mt-5">
@@ -204,63 +208,64 @@
         });
     </script>
 
-<!-- Reemplaza el script actual por este -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Función para actualizar el contador del carrito desde el servidor
-        function updateCartCountFromServer() {
-            fetch('{% url "get_cart_count" %}')
-                .then(response => response.json())
-                .then(data => {
-                    let cartCount = document.getElementById("cart-count");
-                    cartCount.textContent = data.count;
+    <!-- Reemplaza el script actual por este -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Función para actualizar el contador del carrito desde el servidor
+            function updateCartCountFromServer() {
+                fetch('{% url "get_cart_count" %}')
+                    .then(response => response.json())
+                    .then(data => {
+                        let cartCount = document.getElementById("cart-count");
+                        cartCount.textContent = data.count;
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener contador del carrito:', error);
+                    });
+            }
+
+            // Actualiza el contador al cargar la página
+            updateCartCountFromServer();
+
+            // Exponer función para agregar producto mediante AJAX
+            window.addToCartAjax = function (productId) {
+                fetch(`/agregar-producto-carrito/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
                 })
-                .catch(error => {
-                    console.error('Error al obtener contador del carrito:', error);
-                });
-        }
+                    .then(response => response.json())
+                    .then(data => {
+                        let cartCount = document.getElementById("cart-count");
+                        cartCount.textContent = data.count;
+                        // Mostrar mensaje de éxito
+                        alert('Producto agregado al carrito');
+                    })
+                    .catch(error => {
+                        console.error('Error al agregar producto:', error);
+                    });
+            }
 
-        // Actualiza el contador al cargar la página
-        updateCartCountFromServer();
-
-        // Exponer función para agregar producto mediante AJAX
-        window.addToCartAjax = function(productId) {
-            fetch(`/agregar-producto-carrito/${productId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                let cartCount = document.getElementById("cart-count");
-                cartCount.textContent = data.count;
-                // Mostrar mensaje de éxito
-                alert('Producto agregado al carrito');
-            })
-            .catch(error => {
-                console.error('Error al agregar producto:', error);
-            });
-        }
-
-        // Función para obtener el token CSRF
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
+            // Función para obtener el token CSRF
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
                     }
                 }
+                return cookieValue;
             }
-            return cookieValue;
-        }
-    });
-</script>
+        });
+    </script>
 
 </body>
+
 </html>

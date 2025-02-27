@@ -1,102 +1,178 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}...{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'Equino/css/style.css' %}">
+    <!-- Bootstrap y estilos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="{% static './Equino/css/style.css' %}" rel="stylesheet">
+
+    <!--icono de pestaña de la página-->
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'Equino/img/favicon-32x32.png' %}">
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'Equino/js/jquery-3.7.1.min.js' %}"></script>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-
         .navbar {
-            width: 100%;
             background-color: #01019f;
-            height: 60px;
+        }
+
+        .navbar-brand {
+            margin-left: 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: white !important;
+        }
+
+        .navbar a:hover {
+            color: #ffcc00 !important;
+        }
+
+        .dropdown-menu .dropdown-item {
+            color: black !important;
+        }
+
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        .navbar .badge {
+            position: relative;
+            top: -1px;
+            right: 0;
+            font-size: 0.75rem;
+            margin-left: -2px;
+        }
+
+        /* Estilos para el footer */
+        .footer {
+            width: 100%;
+            padding: 20px 0;
+            background-color: #343a40;
+            margin-top: 30px;
+            /* Add margin to separate from content */
+        }
+
+        .footer .text-center {
+            margin: 1;
+        }
+
+        .footer-info {
+            text-align: right;
+        }
+
+        .content {
+            flex: 1;
+            /* This makes the content area expand to fill available space */
+        }
+
+        .wrapper {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            box-sizing: border-box;
+            flex-direction: column;
+            min-height: 100vh;
+            /* Ensures the wrapper takes up the full viewport height */
         }
 
-        .navbar .navbar-brand {
-            color: white;
-            text-decoration: none;
-            font-size: 1.2em;
-        }
-
-        .navbar .navbar-nav {
-            display: flex;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar .navbar-nav .nav-item {
-            margin-left: 20px;
-        }
-
-        .navbar .navbar-nav .nav-link {
-            color: white;
-            text-decoration: none;
-            font-size: 1em;
-        }
-
-        .navbar .navbar-nav .nav-link:hover {
-            color: #ffcc00;
-        }
-
-        .profile-container {
-            padding: 20px;
-            max-width: 600px;
-            margin: 20px auto;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-container h2 {
+        .footer-center {
             text-align: center;
+            margin-bottom: 10px;
         }
 
-        .profile-container .profile-info {
-            text-align: center;
-            margin-top: 20px;
+        .footer-contact {
+            margin-top: 10px;
         }
 
-        .profile-container .profile-info p {
+        .footer-contact p {
             margin: 5px 0;
         }
 
-        .profile-container .profile-actions {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .profile-container .profile-actions button {
-            padding: 10px 20px;
-            margin: 0 10px;
-            border: none;
+        /* Active link style */
+        .navbar .nav-item.active {
+            background-color: green;
             border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
         }
 
-        .profile-container .profile-actions button:hover {
-            background-color: #0056b3;
+        .navbar .nav-item.active a {
+            color: white !important;
         }
     </style>
 </head>
+
 <body>
-    <nav class="navbar">
-        <a class="navbar-brand" href="/">
-            <i class="fas fa-arrow-left"></i> Volver al Inicio
-        </a>
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="gestionar_productos.html">
-                    <i class="fas fa-box"></i> Gestionar Productos
-                </a>
-            </li>
-        </ul>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #01019f;">
+        <div class="container">
+            <a class="navbar-brand" href="/">TECHNOLOGIC NEGORGE</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item {% if request.path == '/admin_dashboard/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'admin_dashboard' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/gestionar_productos/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'gestionar_productos' %}">Gestionar Productos</a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/gestionar_usuarios/' %}active{% endif %}">
+                        <a class="nav-link" href="#">Gestionar Usuarios</a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/gestionar_categorias/' %}active{% endif %}">
+                        <a class="nav-link" href="#">Gestionar Categorías</a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/gestionar_pedidos/' %}active{% endif %}">
+                        <a class="nav-link" href="#">Gestionar Pedidos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </nav>
+
+       <!-- Contenido -->
+        <div class="content container mt-5">
+            {% if messages %}
+            <div id="messages-container">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% block contenedor %}
+            {% endblock %}
+        </div>
+        
+        <footer class="bg-dark text-white footer">
+            <div class="container">
+                <div class="row w-100">
+                    <div class="col-md-6 text-center">
+                        <p>© 2024 Powered</p>
+                    </div>
+                    <div class="col-md-6 footer-info">
+                        <h5>Atención al cliente:</h5>
+                        <div class="footer-contact">
+                            <p><i class="fab fa-whatsapp"></i> WhatsApp: 32594565442</p>
+                            <p><i class="fas fa-phone-alt"></i> Llamadas: 32594565442</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
 </body>
+
+</html>
