@@ -33,4 +33,8 @@ urlpatterns = [
     path('gestionar-productos/', views.gestionar_productos, name='gestionar_productos'),
     path('administradores/', views.admin_dashboard, name='admin_dashboard'),
 
+
+#CRUD USUARIOS
+    path('gestionar-usuarios/', views.gestionar_usuarios, name='gestionar_usuarios'),
+
 ]

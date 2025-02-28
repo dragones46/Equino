@@ -1,21 +1,14 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-from django.contrib.auth.models import AbstractUser,AbstractBaseUser, BaseUserManager
-
 from .authentication import CustomUserManager
 import uuid
-
-
 from io import BytesIO
 from django.core.files import File
 import json
 from django import forms
-
 from django.utils import timezone
-
-# Create your models here.
 
 # Modelo de Producto
 class Producto(models.Model):
@@ -27,7 +20,7 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
-    
+
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
@@ -58,13 +51,13 @@ class Usuario(AbstractUser):
 
     groups = models.ManyToManyField(
         'auth.Group',
-        related_name='usuario_groups',  # Evita conflicto con auth.User.groups
+        related_name='usuario_groups',
         blank=True
     )
 
     user_permissions = models.ManyToManyField(
         'auth.Permission',
-        related_name='usuario_permissions',  # Evita conflicto con auth.User.user_permissions
+        related_name='usuario_permissions',
         blank=True
     )
 
@@ -76,10 +69,12 @@ class Usuario(AbstractUser):
     def __str__(self):
         return self.nombre
 
+class UsuarioForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'email', 'direccion', 'rol', 'estado', 'foto']
 
-
-
-#Modelo de Carrito
+# Modelo de Carrito
 class Carrito(models.Model):
     usuario = models.OneToOneField('Usuario', on_delete=models.CASCADE)
     productos = models.ManyToManyField(Producto, through='CarritoItem')
@@ -94,7 +89,6 @@ class CarritoItem(models.Model):
 
     def subtotal(self):
         return self.producto.precio * self.cantidad
-
 
 # Modelo de Pedido
 class Pedido(models.Model):
@@ -115,7 +109,7 @@ class PedidoItem(models.Model):
         return self.producto.precio * self.cantidad
 
 class Pago(models.Model):
-    pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE,default=1)
+    pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE, default=1)
     valor_total = models.DecimalField(max_digits=10, decimal_places=2)
     codigo_pago = models.CharField(max_length=100)
     qr_codigo = models.ImageField(upload_to='qr_codes/')
@@ -123,7 +117,6 @@ class Pago(models.Model):
 
     def __str__(self):
         return f'Pago {self.codigo_pago} - Total: {self.valor_total}'
-    
 
 class PagoForm(forms.ModelForm):
     class Meta:

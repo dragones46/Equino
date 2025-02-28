@@ -106,7 +106,7 @@ def registro(request):
         password2 = request.POST.get('confirmar_contrasena')
 
         # Validación de nombre: solo letras y espacios
-        if not re.match("^[A-Za-z\s]+$", nombre):
+        if not re.match("^[A-Za-z\\s]+$", nombre):
             messages.warning(request, "El nombre solo puede contener letras y espacios.")
             return redirect("registrarse")
 
@@ -120,9 +120,8 @@ def registro(request):
             messages.warning(request, "Las contraseñas no coinciden.")
             return redirect("registrarse")
 
-        # Verificar si el usuario ya existe (email o nombre como username)
-        if Usuario.objects.filter(email=email).exists():
-            messages.warning(request, "El correo ya está registrado.")
+        # Validar si el correo ya existe
+        if validar_email_existente(request, email):
             return redirect("registrarse")
 
 
@@ -130,15 +129,17 @@ def registro(request):
         Usuario.objects.create(
             nombre=nombre,
             email=email,
-            username=email,
+            username=email,  # Usar el username único generado
             direccion=direccion,
-            password=hash_password(password1)  # Usamos make_password de Django
+            password=make_password(password1)  # Usamos make_password de Django
         )
 
         messages.success(request, "Usuario creado exitosamente.")
         return redirect("login")
 
     return render(request, 'Equino/registro/registro.html')
+
+
 
 def login(request):
     if request.method == 'POST':
@@ -422,3 +423,79 @@ def admin_dashboard(request):
         messages.warning(request, "Acceso denegado.")
         return redirect('index')
     return render(request, 'Equino/admin/dashboard.html')
+
+
+# Crud de usuarios
+@login_required
+def gestionar_usuarios(request):
+    if request.user.rol != 1:
+        return redirect('perfil')
+
+    usuarios = Usuario.objects.all()
+    form = UsuarioForm()
+
+    if request.method == 'POST':
+        if 'agregar' in request.POST:
+            form = UsuarioForm(request.POST, request.FILES)
+            email = request.POST.get('email')
+            username = email  # Asigna el correo electrónico al campo username
+
+            # Validar si el email o el username ya existen
+            if validar_email_existente(request, email):
+                return redirect('gestionar_usuarios')
+
+            if form.is_valid():
+                usuario = form.save(commit=False)
+                usuario.username = username  # Asigna el username antes de guardar
+                try:
+                    usuario.save()
+                    messages.success(request, "Usuario agregado exitosamente.")
+                except IntegrityError:
+                    messages.error(request, "Error de integridad: El nombre de usuario o el correo ya existen.")
+                return redirect('gestionar_usuarios')
+            else:
+                messages.warning(request, "Error al agregar el usuario. Verifique los datos.")
+
+        elif 'editar' in request.POST:
+            usuario_id = request.POST.get('editar')
+            usuario = get_object_or_404(Usuario, id=usuario_id)
+            email = request.POST.get('email')
+            username = email  # Asigna el correo electrónico al campo username
+
+            # Validar si el email o el username ya existen (excluyendo el usuario actual)
+            if validar_email_existente(request, email, usuario_id):
+                return redirect('gestionar_usuarios')
+
+            form = UsuarioForm(request.POST, request.FILES, instance=usuario)
+            if form.is_valid():
+                usuario = form.save(commit=False)
+                usuario.username = username  # Asigna el username antes de guardar
+                try:
+                    usuario.save()
+                    messages.success(request, "Usuario actualizado exitosamente.")
+                except IntegrityError:
+                    messages.error(request, "Error de integridad: El nombre de usuario o el correo ya existen.")
+                return redirect('gestionar_usuarios')
+            else:
+                messages.warning(request, "Error al actualizar el usuario. Verifique los datos.")
+
+        elif 'eliminar' in request.POST:
+            usuario_id = request.POST.get('eliminar')
+            usuario = get_object_or_404(Usuario, id=usuario_id)
+            usuario.delete()
+            messages.success(request, "Usuario eliminado exitosamente.")
+            return redirect('gestionar_usuarios')
+
+    return render(request, 'Equino/usuario/gestionar_usuario.html', {'usuarios': usuarios, 'form': form})
+
+#VALIDACION DE EMAIL
+def validar_email_existente(request, email, usuario_id=None):
+    if Usuario.objects.filter(email=email).exclude(id=usuario_id).exists():
+        messages.warning(request, "El correo ya está registrado.")
+        return True
+    return False
+
+
+#VALIDACION DE USUARIO
+def validar_username_existente(username):
+    return Usuario.objects.filter(username=username).exists()

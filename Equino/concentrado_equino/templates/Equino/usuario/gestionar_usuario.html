@@ -1,0 +1,174 @@
+{% extends 'Equino/barNavInicio.html' %}
+{% load static %}
+
+{% block titulo %}Gestionar Usuarios{% endblock %}
+
+{% block contenedor %}
+<div class="container mt-5">
+    <h2>Gestionar Usuarios</h2>
+    <div class="d-flex justify-content-end mb-3">
+        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#agregarUsuarioModal">
+            Agregar Usuario
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Dirección</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Foto</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ usuario.nombre }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td>{{ usuario.direccion }}</td>
+                    <td>{{ usuario.get_rol_display }}</td>
+                    <td>{{ usuario.get_estado_display }}</td>
+                    <td><img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}" style="width: 100px; height: 100px;"></td>
+                    <td>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-primary btn-lg me-2" data-bs-toggle="modal" data-bs-target="#editarUsuarioModal{{ usuario.id }}">
+                                Editar
+                            </button>
+                            <form method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" name="eliminar" value="{{ usuario.id }}" class="btn btn-danger btn-lg" onclick="return confirm('¿Está seguro de eliminar este usuario?');">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para agregar usuarios -->
+<div class="modal fade" id="agregarUsuarioModal" tabindex="-1" aria-labelledby="agregarUsuarioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="agregarUsuarioModalLabel">Agregar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <input type="text" class="form-control" id="direccion" name="direccion" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rol" class="form-label">Rol</label>
+                        <select class="form-select" id="rol" name="rol" required>
+                            {% for rol in form.fields.rol.choices %}
+                            <option value="{{ rol.0 }}">{{ rol.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-select" id="estado" name="estado" required>
+                            {% for estado in form.fields.estado.choices %}
+                            <option value="{{ estado.0 }}">{{ estado.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="foto" class="form-label">Foto</label>
+                        <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                    </div>
+                    <button type="submit" name="agregar" class="btn btn-success btn-lg">Agregar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales para editar usuarios -->
+{% for usuario in usuarios %}
+<div class="modal fade" id="editarUsuarioModal{{ usuario.id }}" tabindex="-1" aria-labelledby="editarUsuarioModalLabel{{ usuario.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarUsuarioModalLabel{{ usuario.id }}">Editar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="editar" value="{{ usuario.id }}">
+                    <div class="mb-3">
+                        <label for="nombre{{ usuario.id }}" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre{{ usuario.id }}" name="nombre" value="{{ usuario.nombre }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email{{ usuario.id }}" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email{{ usuario.id }}" name="email" value="{{ usuario.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="direccion{{ usuario.id }}" class="form-label">Dirección</label>
+                        <input type="text" class="form-control" id="direccion{{ usuario.id }}" name="direccion" value="{{ usuario.direccion }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password{{ usuario.id }}" class="form-label">Contraseña (dejar en blanco si no se desea cambiar)</label>
+                        <input type="password" class="form-control" id="password{{ usuario.id }}" name="password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password{{ usuario.id }}" class="form-label">Confirmar Contraseña</label>
+                        <input type="password" class="form-control" id="confirm_password{{ usuario.id }}" name="confirm_password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="rol{{ usuario.id }}" class="form-label">Rol</label>
+                        <select class="form-select" id="rol{{ usuario.id }}" name="rol" required>
+                            {% for rol in form.fields.rol.choices %}
+                            <option value="{{ rol.0 }}" {% if usuario.rol == rol.0 %}selected{% endif %}>{{ rol.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado{{ usuario.id }}" class="form-label">Estado</label>
+                        <select class="form-select" id="estado{{ usuario.id }}" name="estado" required>
+                            {% for estado in form.fields.estado.choices %}
+                            <option value="{{ estado.0 }}" {% if usuario.estado == estado.0 %}selected{% endif %}>{{ estado.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="foto{{ usuario.id }}" class="form-label">Foto</label>
+                        <input type="file" class="form-control" id="foto{{ usuario.id }}" name="foto" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
