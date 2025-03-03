@@ -13,6 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.contrib.auth.hashers import make_password
+from django.views.decorators.http import require_POST
 
 from django.db.models import Q
 
@@ -291,7 +292,7 @@ def gestionar_productos(request):
     return render(request, 'Equino/productos/gestionar_productos.html', {'productos': productos, 'form': form})
 
 # Vistas del carrito de compras
-@login_required
+@rol_requerido([1, 2, 3])
 def agregar_producto_carrito(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     
@@ -350,21 +351,27 @@ def vaciar_carrito(request):
 
 @login_required
 def realizar_pago(request):
-    if request.method == 'POST':
-        carrito = get_object_or_404(Carrito, usuario=request.user)
-        total = carrito.total()
-        pedido = Pedido.objects.create(usuario=request.user, total=total)
+    carrito = get_object_or_404(Carrito, usuario=request.user)
+    total = carrito.total()
+    qr_url = None
 
+    if request.method == 'POST':
+        pedido = Pedido.objects.create(usuario=request.user, total=total)
+        
         for item in carrito.carritoitem_set.all():
             PedidoItem.objects.create(pedido=pedido, producto=item.producto, cantidad=item.cantidad)
 
         pago = Pago.objects.create(
             pedido=pedido,
             valor_total=total,
-            codigo_pago=request.POST['codigo_pago'],
-            qr_codigo=request.FILES['qr_codigo'],
-            comprobante_pago=request.FILES['comprobante_pago']
+            codigo_pago=request.POST['codigo_pago']
         )
+
+        # Generar código QR
+        pago.generar_qr()
+        pago.save()
+
+        qr_url = pago.qr_codigo.url  # Obtener la URL del código QR
 
         # Enviar correo al administrador
         send_mail(
@@ -377,8 +384,36 @@ def realizar_pago(request):
         carrito.carritoitem_set.all().delete()
         return redirect('ver_carrito')
 
-    return render(request, 'Equino/pagos/realizar_pago.html')
+    return render(request, 'Equino/pagos/realizar_pago.html', {'total': total, 'qr_url': qr_url})
 
+#crear pedido
+@login_required
+def crear_pedido(request):
+    carrito = Carrito.objects.get(usuario=request.user)
+    if not carrito.productos.exists():
+        return redirect('ver_carrito')  # Evita crear un pedido vacío
+
+    pedido = Pedido.objects.create(usuario=request.user, total=carrito.total())
+
+    for item in carrito.carritoitem_set.all():
+        PedidoItem.objects.create(pedido=pedido, producto=item.producto, cantidad=item.cantidad)
+
+    # Vaciar el carrito
+    carrito.productos.clear()
+
+    return redirect('realizar_pago', pedido_id=pedido.id)
+
+# actualizar cantidad del carrito
+def incrementar_cantidad(request, item_id):
+    item = CarritoItem.objects.get(id=item_id)
+    item.incrementar_cantidad()
+    return redirect('ver_carrito')  # Redirige a la página del carrito
+
+def disminuir_cantidad(request, item_id):
+    item = CarritoItem.objects.get(id=item_id)
+    item.disminuir_cantidad()
+    return redirect('ver_carrito')  # Redirige a la página del carrito
+    
 # Generar QR para pagos
 def generar_qr(codigo_pago):
     qr = qrcode.make(codigo_pago)
@@ -395,25 +430,7 @@ def enviar_email_pago(pago):
         email.attach_file(pago.comprobante_pago.path)
     email.send()
 
-# Procesar pago del carrito
-@login_required
-def realizar_pago(request):
-    pedido = get_object_or_404(Pedido, usuario=request.user, estado=1)
 
-    if request.method == 'POST':
-        form = PagoForm(request.POST, request.FILES)
-        if form.is_valid():
-            pago = form.save(commit=False)
-            pago.pedido = pedido
-            pago.valor_total = pedido.total()
-            pago.save()
-            pedido.estado = 2  # Marcar como completado
-            pedido.save()
-            return redirect('pago_exitoso')
-    else:
-        form = PagoForm()
-
-    return render(request, 'pagos/realizar_pago.html', {'form': form, 'pedido': pedido})
 
 
 #admin

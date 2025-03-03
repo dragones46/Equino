@@ -3,13 +3,38 @@
 {% load humanize %}
 
 {% block content %}
-<h1>Realizar Pago</h1>
 
-<p>Valor total a pagar: ${{ total }}</p>
+<div class="container mt-5">
+    <h2 class="text-center">Realizar Pago</h2>
+    <form method="post" enctype="multipart/form-data" class="mt-4">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label">Valor Total a Pagar:</label>
+            <input type="text" class="form-control" value="{{ total }}" readonly>
+        </div>
+        
+        <div class="mb-3">
+            <label for="codigo_pago" class="form-label">Código de Pago:</label>
+            <input type="text" id="codigo_pago" name="codigo_pago" class="form-control" required>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">QR Número de Cuenta:</label>
+            {% if qr_url %}
+                <img src="{{ qr_url }}" alt="Código QR" class="img-fluid">
+            {% else %}
+                <p class="text-muted">El código QR se generará después de ingresar el código de pago.</p>
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            <label for="comprobante_pago" class="form-label">Adjuntar Comprobante de Pago:</label>
+            <input type="file" id="comprobante_pago" name="comprobante_pago" class="form-control" accept="image/*,application/pdf" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Enviar Pago</button>
+    </form>
+</div>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Enviar</button>
-</form>
 {% endblock %}

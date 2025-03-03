@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import qrcode
 from .authentication import CustomUserManager
 import uuid
 from io import BytesIO
@@ -9,6 +10,8 @@ from django.core.files import File
 import json
 from django import forms
 from django.utils import timezone
+import qrcode
+from django.core.files.base import ContentFile
 
 # Modelo de Producto
 class Producto(models.Model):
@@ -82,13 +85,25 @@ class Carrito(models.Model):
     def total(self):
         return sum(item.subtotal() for item in self.carritoitem_set.all())
 
+# models.py
 class CarritoItem(models.Model):
-    carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    cantidad = models.PositiveIntegerField(default=1)
+    producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
+    carrito = models.ForeignKey('Carrito', on_delete=models.CASCADE)
+    cantidad = models.IntegerField(default=1)
 
     def subtotal(self):
         return self.producto.precio * self.cantidad
+
+    def incrementar_cantidad(self):
+        self.cantidad += 1
+        self.save()
+
+    def disminuir_cantidad(self):
+        if self.cantidad > 1:
+            self.cantidad -= 1
+            self.save()
+        else:
+            self.delete()
 
 # Modelo de Pedido
 class Pedido(models.Model):
@@ -108,15 +123,28 @@ class PedidoItem(models.Model):
     def subtotal(self):
         return self.producto.precio * self.cantidad
 
+
 class Pago(models.Model):
     pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE, default=1)
     valor_total = models.DecimalField(max_digits=10, decimal_places=2)
     codigo_pago = models.CharField(max_length=100)
-    qr_codigo = models.ImageField(upload_to='qr_codes/')
+    qr_codigo = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
     comprobante_pago = models.FileField(upload_to='comprobantes/', null=True, blank=True)
 
     def __str__(self):
         return f'Pago {self.codigo_pago} - Total: {self.valor_total}'
+
+    def generar_qr(self):
+        """Genera un código QR basado en el código de pago"""
+        qr = qrcode.make(self.codigo_pago)
+        qr_io = BytesIO()
+        qr.save(qr_io, format='PNG')
+        self.qr_codigo.save(f'qr_{self.codigo_pago}.png', ContentFile(qr_io.getvalue()), save=False)
+
+    def save(self, *args, **kwargs):
+        if not self.qr_codigo:
+            self.generar_qr()
+        super().save(*args, **kwargs)
 
 class PagoForm(forms.ModelForm):
     class Meta:

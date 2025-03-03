@@ -25,9 +25,9 @@ urlpatterns = [
     path('ver_carrito/', views.ver_carrito, name='ver_carrito'),
     path('eliminar_producto_carrito/<int:item_id>/', views.eliminar_producto_carrito, name='eliminar_producto_carrito'),
     path('vaciar_carrito/', views.vaciar_carrito, name='vaciar_carrito'),
-    path('realizar_pago/', views.realizar_pago, name='realizar_pago'),
     path('get-cart-count/', views.get_cart_count, name='get_cart_count'),
-
+    path('carrito/incrementar/<int:item_id>/', views.incrementar_cantidad, name='incrementar_cantidad'),
+    path('carrito/disminuir/<int:item_id>/', views.disminuir_cantidad, name='disminuir_cantidad'),
 
 #CRUD PRODUCTOS
     path('gestionar-productos/', views.gestionar_productos, name='gestionar_productos'),
@@ -37,4 +37,7 @@ urlpatterns = [
 #CRUD USUARIOS
     path('gestionar-usuarios/', views.gestionar_usuarios, name='gestionar_usuarios'),
 
+
+# PAGOS
+    path('realizar-pago/', views.realizar_pago, name='realizar_pago'),
 ]
