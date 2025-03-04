@@ -12,6 +12,7 @@ from django import forms
 from django.utils import timezone
 import qrcode
 from django.core.files.base import ContentFile
+from django.conf import settings
 
 # Modelo de Producto
 class Producto(models.Model):
@@ -124,6 +125,7 @@ class PedidoItem(models.Model):
         return self.producto.precio * self.cantidad
 
 
+
 class Pago(models.Model):
     pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE, default=1)
     valor_total = models.DecimalField(max_digits=10, decimal_places=2)
@@ -131,15 +133,16 @@ class Pago(models.Model):
     qr_codigo = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
     comprobante_pago = models.FileField(upload_to='comprobantes/', null=True, blank=True)
 
-    def __str__(self):
-        return f'Pago {self.codigo_pago} - Total: {self.valor_total}'
-
     def generar_qr(self):
-        """Genera un código QR basado en el código de pago"""
-        qr = qrcode.make(self.codigo_pago)
-        qr_io = BytesIO()
-        qr.save(qr_io, format='PNG')
-        self.qr_codigo.save(f'qr_{self.codigo_pago}.png', ContentFile(qr_io.getvalue()), save=False)
+        try:
+            qr = qrcode.make(self.codigo_pago)
+            qr_io = BytesIO()
+            qr.save(qr_io, format='PNG')
+            qr_filename = f'qr_{self.codigo_pago}.png'
+            self.qr_codigo.save(qr_filename, ContentFile(qr_io.getvalue()), save=False)
+            print(f"QR generado y guardado como {qr_filename}")
+        except Exception as e:
+            print(f"Error al generar QR: {e}")
 
     def save(self, *args, **kwargs):
         if not self.qr_codigo:

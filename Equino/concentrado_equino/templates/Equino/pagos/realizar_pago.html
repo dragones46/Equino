@@ -2,7 +2,8 @@
 {% load static %}
 {% load humanize %}
 
-{% block content %}
+{% block titulo %}Realizar Pago{% endblock %}
+{% block contenedor %}
 
 <div class="container mt-5">
     <h2 class="text-center">Realizar Pago</h2>
@@ -16,9 +17,10 @@
         
         <div class="mb-3">
             <label for="codigo_pago" class="form-label">Código de Pago:</label>
-            <input type="text" id="codigo_pago" name="codigo_pago" class="form-control" required>
+            <input type="text" id="codigo_pago" name="codigo_pago" class="form-control" value="{{ codigo_pago }}" readonly>
         </div>
         
+             
         <div class="mb-3">
             <label class="form-label">QR Número de Cuenta:</label>
             {% if qr_url %}
@@ -27,6 +29,7 @@
                 <p class="text-muted">El código QR se generará después de ingresar el código de pago.</p>
             {% endif %}
         </div>
+        
         
         <div class="mb-3">
             <label for="comprobante_pago" class="form-label">Adjuntar Comprobante de Pago:</label>

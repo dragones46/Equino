@@ -74,6 +74,8 @@ from .models import *
 
 #Validar la fecha de Nacimiento
 from datetime import datetime
+import uuid
+from io import BytesIO
 
 # Para restringir las vistas
 from .decorators import rol_requerido
@@ -349,26 +351,38 @@ def vaciar_carrito(request):
     carrito.carritoitem_set.all().delete()
     return redirect('ver_carrito')
 
+
+
 @login_required
 def realizar_pago(request):
     carrito = get_object_or_404(Carrito, usuario=request.user)
     total = carrito.total()
     qr_url = None
+    codigo_pago = None  # Inicializa el código de pago
 
     if request.method == 'POST':
+        # Generar un código de pago único
+        codigo_pago = f"PAGO-{uuid.uuid4().hex[:6].upper()}-{int(total)}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
         pedido = Pedido.objects.create(usuario=request.user, total=total)
-        
+
         for item in carrito.carritoitem_set.all():
             PedidoItem.objects.create(pedido=pedido, producto=item.producto, cantidad=item.cantidad)
 
         pago = Pago.objects.create(
             pedido=pedido,
             valor_total=total,
-            codigo_pago=request.POST['codigo_pago']
+            codigo_pago=codigo_pago
         )
 
         # Generar código QR
-        pago.generar_qr()
+        qr_image = qrcode.make(codigo_pago)
+        buffer = BytesIO()
+        qr_image.save(buffer, format='PNG')
+        qr_file = ContentFile(buffer.getvalue(), name=f'qr_{codigo_pago}.png')
+
+        # Guardar el código QR en la carpeta 'qr_codes' dentro de 'media'
+        pago.qr_codigo.save(f'qr_codes/qr_{codigo_pago}.png', qr_file)
         pago.save()
 
         qr_url = pago.qr_codigo.url  # Obtener la URL del código QR
@@ -384,7 +398,20 @@ def realizar_pago(request):
         carrito.carritoitem_set.all().delete()
         return redirect('ver_carrito')
 
-    return render(request, 'Equino/pagos/realizar_pago.html', {'total': total, 'qr_url': qr_url})
+    # Generar el código de pago antes de renderizar el template
+    codigo_pago = f"PAGO-{uuid.uuid4().hex[:6].upper()}-{int(total)}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+    # Generar el código QR antes de renderizar el template
+    qr_image = qrcode.make(codigo_pago)
+    buffer = BytesIO()
+    qr_image.save(buffer, format='PNG')
+    qr_file = ContentFile(buffer.getvalue(), name=f'qr_{codigo_pago}.png')
+
+    # Simular la URL del código QR
+    qr_url = f"/media/qr_codes/qr_{codigo_pago}.png"
+
+    # Pasar el código de pago y la URL del código QR al contexto
+    return render(request, 'Equino/pagos/realizar_pago.html', {'total': total, 'qr_url': qr_url, 'codigo_pago': codigo_pago})
 
 #crear pedido
 @login_required
@@ -414,12 +441,7 @@ def disminuir_cantidad(request, item_id):
     item.disminuir_cantidad()
     return redirect('ver_carrito')  # Redirige a la página del carrito
     
-# Generar QR para pagos
-def generar_qr(codigo_pago):
-    qr = qrcode.make(codigo_pago)
-    buffer = BytesIO()
-    qr.save(buffer, format='PNG')
-    return ContentFile(buffer.getvalue(), name=f'qr_{codigo_pago}.png')
+
 
 # Enviar email de pago
 def enviar_email_pago(pago):
