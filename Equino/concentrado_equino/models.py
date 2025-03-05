@@ -32,10 +32,10 @@ class ProductoForm(forms.ModelForm):
 
 # Modelo de Usuario
 class Usuario(AbstractUser):
-    nombre = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    direccion = models.CharField(max_length=200)
-    password = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100, blank=False, null=False)
+    email = models.EmailField(unique=True, blank=False, null=False)
+    direccion = models.CharField(max_length=200, blank=False, null=False)
+    password = models.CharField(max_length=100, blank=False, null=False)
 
     ROLES = (
         (1, "Administrador"),
@@ -77,6 +77,14 @@ class UsuarioForm(forms.ModelForm):
     class Meta:
         model = Usuario
         fields = ['nombre', 'email', 'direccion', 'rol', 'estado', 'foto']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'required': True}),
+            'email': forms.EmailInput(attrs={'required': True}),
+            'direccion': forms.TextInput(attrs={'required': True}),
+            'rol': forms.Select(attrs={'required': True}),
+            'estado': forms.Select(attrs={'required': True}),
+        }
+
 
 # Modelo de Carrito
 class Carrito(models.Model):
