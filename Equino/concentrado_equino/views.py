@@ -353,17 +353,33 @@ def vaciar_carrito(request):
 
 
 
+
 @login_required
 def realizar_pago(request):
     carrito = get_object_or_404(Carrito, usuario=request.user)
     total = carrito.total()
     qr_url = None
-    codigo_pago = None  # Inicializa el código de pago
+    codigo_pago = None
 
-    if request.method == 'POST':
-        # Generar un código de pago único
+    # Generar un código de pago único antes de renderizar la página
+    if not codigo_pago:
         codigo_pago = f"PAGO-{uuid.uuid4().hex[:6].upper()}-{int(total)}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
+    # Generar el código QR antes de renderizar la página
+    qr_image = qrcode.make(codigo_pago)
+    buffer = BytesIO()
+    qr_image.save(buffer, format='PNG')
+    qr_file = ContentFile(buffer.getvalue(), name=f'qr_{codigo_pago}.png')
+
+    # Asegurarse de que la carpeta 'qr_codes' exista
+    qr_codes_dir = os.path.join(settings.MEDIA_ROOT, 'qr_codes')
+    os.makedirs(qr_codes_dir, exist_ok=True)
+
+    # Guardar el código QR en la carpeta 'qr_codes' dentro de 'media'
+    qr_path = os.path.join('qr_codes', f'qr_{codigo_pago}.png')
+    qr_url = f"/media/{qr_path}"
+
+    if request.method == 'POST':
         pedido = Pedido.objects.create(usuario=request.user, total=total)
 
         for item in carrito.carritoitem_set.all():
@@ -375,40 +391,38 @@ def realizar_pago(request):
             codigo_pago=codigo_pago
         )
 
-        # Generar código QR
-        qr_image = qrcode.make(codigo_pago)
-        buffer = BytesIO()
-        qr_image.save(buffer, format='PNG')
-        qr_file = ContentFile(buffer.getvalue(), name=f'qr_{codigo_pago}.png')
-
-        # Guardar el código QR en la carpeta 'qr_codes' dentro de 'media'
-        pago.qr_codigo.save(f'qr_codes/qr_{codigo_pago}.png', qr_file)
+        # Guardar el código QR en el modelo Pago
+        pago.qr_codigo.save(qr_path, qr_file)
         pago.save()
 
-        qr_url = pago.qr_codigo.url  # Obtener la URL del código QR
+        # Generar el PDF
+        context = {
+            'nombre_pagina': 'Detalles del Pago',
+            'usuario': request.user,
+            'items': carrito.carritoitem_set.all(),
+            'total': total,
+            'qr_url': qr_url  # Incluir la URL del código QR en el contexto
+        }
+        html = render_to_string('Equino/email/pdf/email_pdf_template.html', context)
+        pdf_file = BytesIO()
+        pisa.CreatePDF(html, dest=pdf_file)
+        pdf_file.seek(0)
 
-        # Enviar correo al administrador
-        send_mail(
+        # Enviar correo al administrador con el PDF adjunto
+        email = EmailMessage(
             'Nuevo pago realizado',
             f'Se ha realizado un nuevo pago con código {pago.codigo_pago}.',
             settings.DEFAULT_FROM_EMAIL,
             [settings.ADMIN_EMAIL],
         )
+        email.attach('detalles_del_pago.pdf', pdf_file.read(), 'application/pdf')
+        email.send()
+
+        # Mensaje de confirmación de envío de correo
+        messages.success(request, "El pago se ha realizado y se ha enviado un correo al propietario.")
 
         carrito.carritoitem_set.all().delete()
         return redirect('ver_carrito')
-
-    # Generar el código de pago antes de renderizar el template
-    codigo_pago = f"PAGO-{uuid.uuid4().hex[:6].upper()}-{int(total)}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-
-    # Generar el código QR antes de renderizar el template
-    qr_image = qrcode.make(codigo_pago)
-    buffer = BytesIO()
-    qr_image.save(buffer, format='PNG')
-    qr_file = ContentFile(buffer.getvalue(), name=f'qr_{codigo_pago}.png')
-
-    # Simular la URL del código QR
-    qr_url = f"/media/qr_codes/qr_{codigo_pago}.png"
 
     # Pasar el código de pago y la URL del código QR al contexto
     return render(request, 'Equino/pagos/realizar_pago.html', {'total': total, 'qr_url': qr_url, 'codigo_pago': codigo_pago})
@@ -443,14 +457,6 @@ def disminuir_cantidad(request, item_id):
     
 
 
-# Enviar email de pago
-def enviar_email_pago(pago):
-    subject = 'Nuevo Pago Recibido'
-    message = f'Un nuevo pago ha sido recibido:\n\nCódigo de Pago: {pago.codigo_pago}\nValor Total: {pago.valor_total}'
-    email = EmailMessage(subject, message, settings.DEFAULT_FROM_EMAIL, [settings.ADMIN_EMAIL])
-    if pago.comprobante_pago:
-        email.attach_file(pago.comprobante_pago.path)
-    email.send()
 
 
 

@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager
 from django.db.models.signals import post_save
@@ -119,9 +120,9 @@ class Pedido(models.Model):
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
     fecha = models.DateTimeField(auto_now_add=True)
     estado = models.IntegerField(choices=((1, "Pendiente"), (2, "Completado"), (3, "Cancelado")), default=1)
-    total = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    def total(self):
+    def calcular_total(self):
         return sum(item.subtotal() for item in self.pedidoitem_set.all())
 
 class PedidoItem(models.Model):
@@ -143,12 +144,24 @@ class Pago(models.Model):
 
     def generar_qr(self):
         try:
+            # Generar el código QR
             qr = qrcode.make(self.codigo_pago)
             qr_io = BytesIO()
             qr.save(qr_io, format='PNG')
+
+            # Generar el nombre del archivo QR
             qr_filename = f'qr_{self.codigo_pago}.png'
-            self.qr_codigo.save(qr_filename, ContentFile(qr_io.getvalue()), save=False)
-            print(f"QR generado y guardado como {qr_filename}")
+            qr_path = os.path.join(settings.MEDIA_ROOT, 'qr_codes', qr_filename)
+
+
+            # Guardar el archivo QR
+            with open(qr_path, 'wb') as f:
+                f.write(qr_io.getvalue())
+
+            # Asignar la ruta relativa a `qr_codigo`
+            self.qr_codigo.name = f'qr_codes/{qr_filename}'
+            print(f"QR generado y guardado en {qr_path}")
+
         except Exception as e:
             print(f"Error al generar QR: {e}")
 
@@ -156,7 +169,7 @@ class Pago(models.Model):
         if not self.qr_codigo:
             self.generar_qr()
         super().save(*args, **kwargs)
-
+        
 class PagoForm(forms.ModelForm):
     class Meta:
         model = Pago

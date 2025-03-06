@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detalles del Pago</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 80%; margin: auto; }
+        .header, .footer { text-align: center; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th, .table td { border: 1px solid #ddd; padding: 8px; }
+        .table th { background-color: #f2f2f2; }
+        .logo { width: 100px; height: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ nombre_pagina }}</h1>
+            <img src="{% static 'Equino/img/caballo_comiendo.jpg' %}" alt="Logo de la Empresa" class="logo">
+        </div>
+        <div class="content">
+            <h2>Detalles del Cliente</h2>
+            <p><strong>Nombre:</strong> {{ usuario.nombre }}</p>
+            <p><strong>Correo:</strong> {{ usuario.email }}</p>
+            <p><strong>Dirección:</strong> {{ usuario.direccion }}</p>
+
+            <h2>Detalles del Pedido</h2>
+            <table class="table">
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                </tr>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.producto.nombre }}</td>
+                    <td>{{ item.cantidad }}</td>
+                    <td>{{ item.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <p><strong>Total:</strong> {{ total }}</p>
+        </div>
+        <div class="footer">
+            <p>Gracias por tu compra!</p>
+        </div>
+    </div>
+</body>
+</html>
