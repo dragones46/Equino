@@ -354,12 +354,15 @@ def vaciar_carrito(request):
 
 
 
+from django.contrib.sites.shortcuts import get_current_site
+
 @login_required
 def realizar_pago(request):
     carrito = get_object_or_404(Carrito, usuario=request.user)
     total = carrito.total()
     qr_url = None
     codigo_pago = None
+    comprobante_url = None
 
     # Generar un código de pago único antes de renderizar la página
     if not codigo_pago:
@@ -377,7 +380,7 @@ def realizar_pago(request):
 
     # Guardar el código QR en la carpeta 'qr_codes' dentro de 'media'
     qr_path = os.path.join('qr_codes', f'qr_{codigo_pago}.png')
-    qr_url = f"/media/{qr_path}"
+    qr_url = request.build_absolute_uri(f"/media/{qr_path}")
 
     if request.method == 'POST':
         pedido = Pedido.objects.create(usuario=request.user, total=total)
@@ -393,6 +396,14 @@ def realizar_pago(request):
 
         # Guardar el código QR en el modelo Pago
         pago.qr_codigo.save(qr_path, qr_file)
+
+        # Manejar la subida del comprobante de pago
+        if 'comprobante_pago' in request.FILES:
+            comprobante_file = request.FILES['comprobante_pago']
+            comprobante_path = os.path.join('comprobantes', f'comprobante_{codigo_pago}.png')
+            comprobante_url = request.build_absolute_uri(f"/media/comprobantes/{comprobante_path}")
+            pago.comprobante_pago.save(comprobante_path, comprobante_file)
+
         pago.save()
 
         # Generar el PDF
@@ -401,25 +412,26 @@ def realizar_pago(request):
             'usuario': request.user,
             'items': carrito.carritoitem_set.all(),
             'total': total,
-            'qr_url': qr_url  # Incluir la URL del código QR en el contexto
+            'qr_url': qr_url,
+            'comprobante_url': comprobante_url,
         }
         html = render_to_string('Equino/email/pdf/email_pdf_template.html', context)
         pdf_file = BytesIO()
         pisa.CreatePDF(html, dest=pdf_file)
         pdf_file.seek(0)
 
-        # Enviar correo al administrador con el PDF adjunto
+        # Enviar correo al administrador y al usuario con el PDF adjunto
         email = EmailMessage(
             'Nuevo pago realizado',
             f'Se ha realizado un nuevo pago con código {pago.codigo_pago}.',
             settings.DEFAULT_FROM_EMAIL,
-            [settings.ADMIN_EMAIL],
+            [settings.ADMIN_EMAIL, request.user.email],  # Incluir el correo del usuario
         )
         email.attach('detalles_del_pago.pdf', pdf_file.read(), 'application/pdf')
         email.send()
 
         # Mensaje de confirmación de envío de correo
-        messages.success(request, "El pago se ha realizado y se ha enviado un correo al propietario.")
+        messages.success(request, "El pago se ha realizado y se ha enviado un correo al propietario y al usuario.")
 
         carrito.carritoitem_set.all().delete()
         return redirect('ver_carrito')

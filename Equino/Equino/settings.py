@@ -140,7 +140,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'deivysarrazola@gmail.com'
 EMAIL_HOST_PASSWORD = 'djxs pwum lert nmas'
 DEFAULT_FROM_EMAIL = 'deivysarrazola@gmail.com'
-ADMIN_EMAIL = 'deivy273@gmail.com'
+ADMIN_EMAIL = 'alvarezom692@gmail.com'
 
 # Rest Framework
 REST_FRAMEWORK = {

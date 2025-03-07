@@ -6,37 +6,40 @@
 {% block contenedor %}
 
 <div class="container mt-5">
-    <h2 class="text-center">Realizar Pago</h2>
+    <h2 class="text-center mb-4">Realizar Pago</h2>
+    
     <form method="post" enctype="multipart/form-data" class="mt-4">
         {% csrf_token %}
         
-        <div class="mb-3">
-            <label class="form-label">Valor Total a Pagar:</label>
+        <div class="mb-4">
+            <label class="form-label"><strong>Valor Total a Pagar:</strong></label>
             <input type="text" class="form-control" value="{{ total }}" readonly>
         </div>
         
-        <div class="mb-3">
-            <label for="codigo_pago" class="form-label">Código de Pago:</label>
+        <div class="mb-4">
+            <label for="codigo_pago" class="form-label"><strong>Código de Pago:</strong></label>
             <input type="text" id="codigo_pago" name="codigo_pago" class="form-control" value="{{ codigo_pago }}" readonly>
         </div>
         
-             
-        <div class="mb-3">
-            <label class="form-label">QR Número de Cuenta:</label>
-            {% if qr_url %}
-                <img src="{{ qr_url }}" alt="Código QR" class="img-fluid">
-            {% else %}
-                <p class="text-muted">El código QR se generará después de ingresar el código de pago.</p>
-            {% endif %}
+        <div class="mb-4 text-center">
+            <label class="form-label"><strong>QR Número de Cuenta del Dueño:</strong></label>
+            <div class="mt-2">
+                {% if qr_url %}
+                    <img src="{% static 'Equino/img/qr.png' %}" alt="Código QR" class="img-fluid">
+                {% else %}
+                    <p class="text-muted">El código QR se generará después de ingresar el código de pago.</p>
+                {% endif %}
+            </div>
         </div>
         
-        
-        <div class="mb-3">
-            <label for="comprobante_pago" class="form-label">Adjuntar Comprobante de Pago:</label>
+        <div class="mb-4">
+            <label for="comprobante_pago" class="form-label"><strong>Adjuntar Comprobante de Pago:</strong></label>
             <input type="file" id="comprobante_pago" name="comprobante_pago" class="form-control" accept="image/*,application/pdf" required>
         </div>
         
-        <button type="submit" class="btn btn-primary">Enviar Pago</button>
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-4 py-2">Enviar Pago</button>
+        </div>
     </form>
 </div>
 

@@ -1,23 +1,65 @@
 {% load static %}
+{% load humanize %}
+
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Detalles del Pago</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .container { width: 80%; margin: auto; }
-        .header, .footer { text-align: center; }
-        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .table th, .table td { border: 1px solid #ddd; padding: 8px; }
-        .table th { background-color: #f2f2f2; }
-        .logo { width: 100px; height: auto; }
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+
+        .header,
+        .footer {
+            text-align: center;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+        }
+
+        .qr-code {
+            width: 150px;
+            height: auto;
+            margin-top: 20px;
+        }
+
+        .comprobante {
+            width: 50px;
+            height: auto;
+            margin-left: 10px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
             <h1>{{ nombre_pagina }}</h1>
-            <img src="{% static 'Equino/img/caballo_comiendo.jpg' %}" alt="Logo de la Empresa" class="logo">
         </div>
         <div class="content">
             <h2>Detalles del Cliente</h2>
@@ -29,12 +71,18 @@
             <table class="table">
                 <tr>
                     <th>Producto</th>
+                    <th>comprovante</th>
                     <th>Cantidad</th>
                     <th>Subtotal</th>
                 </tr>
                 {% for item in items %}
                 <tr>
                     <td>{{ item.producto.nombre }}</td>
+                    <td>
+                        {% if comprobante_url %}
+                        <img src="{{ comprobante_url }}" alt="Comprobante de Pago" class="comprobante">
+                        {% endif %}
+                    </td>
                     <td>{{ item.cantidad }}</td>
                     <td>{{ item.subtotal }}</td>
                 </tr>
@@ -44,7 +92,10 @@
         </div>
         <div class="footer">
             <p>Gracias por tu compra!</p>
+            <img src="{{ qr_url }}" alt="Código QR" class="qr-code"> <br>
+            <h2><strong>TECHNOLOGIC NEGORGE</strong></h2>
         </div>
     </div>
 </body>
+
 </html>
