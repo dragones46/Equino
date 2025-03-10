@@ -43,8 +43,7 @@
 </div>
 
 <!-- Modal para editar perfil -->
-<div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-labelledby="editarPerfilModalLabel"
-    aria-hidden="true">
+<div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-labelledby="editarPerfilModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -52,20 +51,28 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="{% url 'editar_perfil' %}" enctype="multipart/form-data">
+                <form id="editarPerfilForm" method="post" action="{% url 'editar_perfil' %}" enctype="multipart/form-data" class="needs-validation" novalidate>
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="nombre" class="form-label"><strong>Nombre:</strong></label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ user.nombre }}">
+                        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ user.nombre }}" required>
+                        <div class="invalid-feedback">
+                            Este campo es obligatorio.
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label"><strong>Correo:</strong></label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        <div class="invalid-feedback">
+                            Este campo es obligatorio.
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="direccion" class="form-label"><strong>Dirección:</strong></label>
-                        <input type="text" class="form-control" id="direccion" name="direccion"
-                            value="{{ user.direccion }}">
+                        <input type="text" class="form-control" id="direccion" name="direccion" value="{{ user.direccion }}" required>
+                        <div class="invalid-feedback">
+                            Este campo es obligatorio.
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="foto" class="form-label"><strong>Foto de Perfil:</strong></label>
@@ -77,6 +84,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Modal para cambiar contraseña -->
 <div class="modal fade" id="cambiarContrasenaModal" tabindex="-1" aria-labelledby="cambiarContrasenaModalLabel"
@@ -106,4 +114,26 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+
 {% endblock %}

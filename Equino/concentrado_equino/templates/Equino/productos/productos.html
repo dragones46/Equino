@@ -44,6 +44,18 @@
     .product-card .btn-primary i {
         margin-right: 5px;
     }
+
+    .product-card .stock-low {
+        color: orange;
+    }
+
+    .product-card .stock-out {
+        color: red;
+    }
+
+    .product-card .stock-few {
+        color: blue;
+    }
 </style>
 
 <h1>Productos</h1>
@@ -55,10 +67,19 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ producto.nombre }}</h5>
                     <h5 class="card-title kg">{{ producto.kg }}kg</h5>
-                    <p class="card-text price">${{ producto.precio|intcomma }}</p> <!-- Eliminar decimales y agregar coma -->
-                    <a href="{% url 'agregar_producto_carrito' producto.id %}" class="btn btn-primary">
-                        <i class="fas fa-shopping-cart"></i>
-                    </a>
+                    <p class="card-text price">$ {{ producto.precio }}</p> <!-- Eliminar decimales y agregar coma -->
+                    {% if producto.cantidad <= 0 %}
+                        <p class="stock-out">Producto agotado</p>
+                    {% elif producto.cantidad <= 3 %}
+                        <p class="stock-few">Quedan {{ producto.cantidad }} de este producto</p>
+                    {% elif producto.cantidad <= 6 %}
+                        <p class="stock-low">Producto casi agotado</p>
+                    {% endif %}
+                    {% if producto.cantidad > 0 %}
+                        <a href="{% url 'agregar_producto_carrito' producto.id %}" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart"></i>
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -208,6 +208,11 @@ def editar_perfil(request):
         direccion = request.POST.get('direccion')
         foto = request.FILES.get('foto')
 
+        # Validar si el correo ya está registrado
+        if Usuario.objects.filter(email=email).exclude(pk=user.pk).exists():
+            messages.warning(request, "El correo ya está registrado.")
+            return redirect('ver_perfil')
+
         user.nombre = nombre
         user.email = email
         user.direccion = direccion
@@ -230,7 +235,6 @@ def editar_perfil(request):
         return redirect('ver_perfil')
 
     return redirect('ver_perfil')
-
 
 @login_required
 def cambiar_contrasena(request):
@@ -297,25 +301,33 @@ def gestionar_productos(request):
 @rol_requerido([1, 2, 3])
 def agregar_producto_carrito(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
-    
+
     # Verifica que el usuario esté en request.user
     if not request.user.is_authenticated:
         messages.warning(request, "Debes iniciar sesión para agregar productos al carrito")
         return redirect('login')
-    
+
+    if producto.cantidad <= 0:
+        messages.warning(request, "El producto está agotado y no se puede agregar al carrito.")
+        return redirect('productos')
+
     carrito, created = Carrito.objects.get_or_create(usuario=request.user)
     carrito_item, item_created = CarritoItem.objects.get_or_create(carrito=carrito, producto=producto)
-    
+
+    if not item_created and carrito_item.cantidad >= producto.cantidad:
+        messages.warning(request, "No hay suficiente stock disponible para agregar más de este producto.")
+        return redirect('ver_carrito')
+
     if not item_created:
         carrito_item.cantidad += 1
         carrito_item.save()
-    
+
     # Contar items en el carrito
     count = CarritoItem.objects.filter(carrito=carrito).count()
-    
+
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'count': count})
-    
+
     messages.success(request, "Producto agregado al carrito")
     return redirect('ver_carrito')
 

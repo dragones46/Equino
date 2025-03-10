@@ -22,6 +22,8 @@ class Producto(models.Model):
     precio = models.IntegerField()
     foto = models.ImageField(upload_to='productos/')
     kg = models.IntegerField()
+    cantidad = models.IntegerField(default=0)  # Cambiado a 'cantidad'
+
 
     def __str__(self):
         return self.nombre

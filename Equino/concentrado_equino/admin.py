@@ -4,9 +4,9 @@ from .models import *
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nombre', 'descripcion', 'precio', 'kg', 'ver_foto']
+    list_display = ['id', 'nombre', 'descripcion', 'precio', 'kg', 'ver_foto', 'cantidad']
     list_filter = ['id', 'nombre']
-    list_editable = ['nombre', 'descripcion', 'precio', 'kg']
+    list_editable = ['nombre', 'descripcion', 'precio', 'kg', 'cantidad']
 
     def ver_foto(self, obj):
         if obj.foto:
