@@ -302,7 +302,7 @@ def gestionar_productos(request):
 def agregar_producto_carrito(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
 
-    # Verifica que el usuario esté en request.user
+    # Verifica que el usuario esté autenticado
     if not request.user.is_authenticated:
         messages.warning(request, "Debes iniciar sesión para agregar productos al carrito")
         return redirect('login')
@@ -314,13 +314,19 @@ def agregar_producto_carrito(request, producto_id):
     carrito, created = Carrito.objects.get_or_create(usuario=request.user)
     carrito_item, item_created = CarritoItem.objects.get_or_create(carrito=carrito, producto=producto)
 
+    # Check if the requested quantity exceeds the available stock
     if not item_created and carrito_item.cantidad >= producto.cantidad:
         messages.warning(request, "No hay suficiente stock disponible para agregar más de este producto.")
         return redirect('ver_carrito')
 
+    # Increment the quantity if stock is available
     if not item_created:
-        carrito_item.cantidad += 1
-        carrito_item.save()
+        if carrito_item.cantidad < producto.cantidad:
+            carrito_item.cantidad += 1
+            carrito_item.save()
+        else:
+            messages.warning(request, "No hay suficiente stock disponible para agregar más de este producto.")
+            return redirect('ver_carrito')
 
     # Contar items en el carrito
     count = CarritoItem.objects.filter(carrito=carrito).count()
@@ -376,12 +382,19 @@ def realizar_pago(request):
     codigo_pago = None
     comprobante_url = None
 
+    # Verificar stock antes de procesar el pago
+    for item in carrito.carritoitem_set.all():
+        if item.cantidad > item.producto.cantidad:
+            messages.warning(request, f"No hay suficiente stock disponible para el producto {item.producto.nombre}.")
+            return redirect('ver_carrito')
+
     # Generar un código de pago único antes de renderizar la página
     if not codigo_pago:
         codigo_pago = f"PAGO-{uuid.uuid4().hex[:6].upper()}-{int(total)}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
     # Generar el código QR antes de renderizar la página
     qr_image = qrcode.make(codigo_pago)
+    qr_image = qr_image.convert("RGBA")
     buffer = BytesIO()
     qr_image.save(buffer, format='PNG')
     qr_file = ContentFile(buffer.getvalue(), name=f'qr_{codigo_pago}.png')
@@ -399,6 +412,9 @@ def realizar_pago(request):
 
         for item in carrito.carritoitem_set.all():
             PedidoItem.objects.create(pedido=pedido, producto=item.producto, cantidad=item.cantidad)
+            # Disminuir stock del producto
+            item.producto.cantidad -= item.cantidad
+            item.producto.save()
 
         pago = Pago.objects.create(
             pedido=pedido,
@@ -471,18 +487,37 @@ def crear_pedido(request):
 # actualizar cantidad del carrito
 def incrementar_cantidad(request, item_id):
     item = CarritoItem.objects.get(id=item_id)
-    item.incrementar_cantidad()
-    return redirect('ver_carrito')  # Redirige a la página del carrito
+    if item.cantidad < item.producto.cantidad:
+        item.incrementar_cantidad()
+        messages.success(request, "Cantidad incrementada correctamente.")
+    else:
+        messages.warning(request, "No hay suficiente stock disponible para agregar más de este producto.")
+    return redirect('ver_carrito')
 
 def disminuir_cantidad(request, item_id):
     item = CarritoItem.objects.get(id=item_id)
-    item.disminuir_cantidad()
-    return redirect('ver_carrito')  # Redirige a la página del carrito
-    
+    if item.cantidad > 1:
+        item.disminuir_cantidad()
+        messages.success(request, "Cantidad disminuida correctamente.")
+    else:
+        messages.warning(request, "No se puede disminuir más la cantidad.")
+    return redirect('ver_carrito')
 
+# Icrementar y disminuir cantidad
+@login_required
+def incrementar_cantidad_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    producto.cantidad += 1
+    producto.save()
+    return redirect('gestionar_productos')
 
-
-
+@login_required
+def disminuir_cantidad_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    if producto.cantidad > 0:
+        producto.cantidad -= 1
+        producto.save()
+    return redirect('gestionar_productos')
 
 
 #admin

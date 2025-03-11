@@ -40,4 +40,9 @@ urlpatterns = [
 
 # PAGOS
     path('realizar-pago/', views.realizar_pago, name='realizar_pago'),
+
+# Incrementar y disminuir productos
+    path('incrementar_cantidad_producto/<int:producto_id>/', views.incrementar_cantidad_producto, name='incrementar_cantidad_producto'),
+    path('disminuir_cantidad_producto/<int:producto_id>/', views.disminuir_cantidad_producto, name='disminuir_cantidad_producto'),
+
 ]

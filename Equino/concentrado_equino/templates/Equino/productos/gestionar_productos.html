@@ -19,6 +19,7 @@
                     <th>Descripción</th>
                     <th>Precio</th>
                     <th>Kg</th>
+                    <th>Cantidad</th>
                     <th>Foto</th>
                     <th>Acciones</th>
                 </tr>
@@ -30,6 +31,11 @@
                     <td>{{ producto.descripcion }}</td>
                     <td>{{ producto.precio }}</td>
                     <td>{{ producto.kg }}</td>
+                    <td>
+                        <a href="{% url 'disminuir_cantidad_producto' producto.id %}" class="btn btn-primary">-</a>
+                        {{ producto.cantidad }}
+                        <a href="{% url 'incrementar_cantidad_producto' producto.id %}" class="btn btn-primary">+</a>
+                    </td>
                     <td><img src="{{ producto.foto.url }}" alt="{{ producto.nombre }}" style="width: 100px; height: 100px;"></td>
                     <td>
                         <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#editarProductoModal{{ producto.id }}">
