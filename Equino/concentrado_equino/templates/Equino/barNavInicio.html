@@ -62,11 +62,12 @@
 
         /* Estilos para el footer */
         .footer {
+            position: relative;
+            bottom: 0;
             width: 100%;
-            padding: 20px 0;
+            padding: 30px 0;
             background-color: #343a40;
             margin-top: 30px;
-            /* Add margin to separate from content */
         }
 
         .footer .text-center {
@@ -78,8 +79,8 @@
         }
 
         .content {
+            min-height: calc(100vh - 200px);
             flex: 1;
-            /* This makes the content area expand to fill available space */
         }
 
         .wrapper {
@@ -88,10 +89,15 @@
             min-height: 100vh;
             /* Ensures the wrapper takes up the full viewport height */
         }
-
+        
         .footer-center {
             text-align: center;
             margin-bottom: 10px;
+        }
+
+        .content {
+            min-height: calc(100vh - 200px);
+            margin-bottom: 20px;
         }
 
         .footer-contact {
@@ -102,14 +108,17 @@
             margin: 5px 0;
         }
 
-        /* Active link style */
-        .navbar .nav-item.active {
-            background-color: green;
-            border-radius: 5px;
-        }
+        /* Add this CSS to your existing style block or CSS file */
+        @media (max-width: 991.98px) {
+            .navbar-nav .login-btn {
+                margin-bottom: 10px;
+                /* Adjust the value as needed */
+            }
 
-        .navbar .nav-item.active a {
-            color: white !important;
+            .navbar-nav .register-btn {
+                margin-bottom: 10px;
+                /* Adjust the value as needed */
+            }
         }
     </style>
 </head>

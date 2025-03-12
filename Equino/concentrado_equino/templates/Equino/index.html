@@ -42,15 +42,22 @@
 {% endblock %}
 
 <style>
-    /* Estilo para las imágenes del carrusel */
-    .carousel-inner img {
-        height: 400px;  /* Ajusta la altura de las imágenes */
-        object-fit: cover;  /* Hace que la imagen cubra el área sin distorsionar */
+    /* Estilo para el carrusel */
+    .carousel,
+    .carousel-inner,
+    .carousel-item {
+        height: 100vh; /* Altura del 100% del viewport */
     }
 
-    /* Opcional: Si quieres más control, puedes hacer que el contenedor del carrusel también sea responsivo */
+    .carousel-inner img {
+        height: 100vh; /* Ajusta la altura de las imágenes */
+        object-fit: cover; /* Hace que la imagen cubra el área sin distorsionar */
+    }
+
+    /* Asegúrate de que el contenedor del carrusel también sea responsivo */
     .carousel {
-        max-width: 100%;  /* Limita el ancho máximo del carrusel */
-        margin: 0 auto;  /* Centra el carrusel */
+        max-width: 100%; /* Limita el ancho máximo del carrusel */
+        margin: 0 auto; /* Centra el carrusel */
     }
 </style>
+
